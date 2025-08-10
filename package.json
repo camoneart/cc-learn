@@ -1,0 +1,23 @@
+{
+  "name": "cc-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "workspaces": [
+    "cc-catch-up",
+    "cc-prayground"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  }
+}
