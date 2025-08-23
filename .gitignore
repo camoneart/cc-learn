@@ -56,3 +56,6 @@ cc-prayground/sandbox/temp/
 
 # Cache directories
 .cache/
+
+# cc log
+_docs/templates
