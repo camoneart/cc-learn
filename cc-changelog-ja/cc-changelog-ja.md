@@ -1,5 +1,11 @@
 # Claude Code 変更履歴
 
+## 2.0.24
+
+- `--setting-sources 'project'` が指定された際にプロジェクトレベルのスキルが読み込まれないバグを修正
+- Claude Code Web: Web → CLI テレポートのサポートを追加
+- Sandbox: LinuxとMac用のBashToolサンドボックスモードをリリース
+
 ## 2.0.22
 
 - スラッシュコマンドをスクロールする際のコンテンツレイアウトシフトを修正
