@@ -1,5 +1,17 @@
 # Claude Code 変更履歴
 
+## 2.0.27
+
+- パーミッションプロンプトの新しいUI - Claude Codeがパーミッションをリクエストする際の視覚的なプレゼンテーションを強化
+- セッション再開の改善 - セッション再開画面に現在のブランチフィルタリングと検索機能を追加し、ナビゲーションを容易に
+- ディレクトリ@メンションのバグ修正 - ディレクトリを@メンションすると「No assistant message found」エラーが発生する問題を解決
+- VSCode拡張のファイル検索 - ファイル検索に.gitignoreされたファイルを含める新しい設定を追加
+- VSCode拡張の安定性 - 無関係な「Warmup」会話や設定が時折デフォルトにリセットされる問題を修正
+
+## 2.0.25
+
+- レガシーSDKエントリーポイントを削除。今後のSDKアップデートは @anthropic-ai/claude-agent-sdk への移行が必要: https://docs.claude.com/en/docs/claude-code/sdk/migration-guide
+
 ## 2.0.24
 
 - `--setting-sources 'project'` が指定された際にプロジェクトレベルのスキルが読み込まれないバグを修正
