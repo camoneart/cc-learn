@@ -1,5 +1,23 @@
 # Claude Code 変更履歴
 
+## 2.0.30
+
+- macOSでキーチェーンがロックされている際のAPIキーエラーに`security unlock-keychain`実行のヒントを追加
+- サンドボックス設定に`allowUnsandboxedCommands`を追加し、ポリシーレベルでdangerouslyDisableSandboxエスケープハッチを制限可能に
+- カスタムエージェント定義に`disallowedTools`フィールドを追加し、明示的なツールブロックが可能に
+- プロンプトベースのストップフックを追加
+- VSCode: `.gitignore`されたファイルを検索に含めるかどうかを選択できる`respectGitIgnore`設定を実装（デフォルトはtrue）
+- ネイティブビルドでSSE MCPサーバーを有効化
+- 出力スタイルを非推奨化。`/output-style`でオプションを確認し、代わりに`--system-prompt`、`--append-system-prompt`、`CLAUDE.md`、またはプラグインを使用してください
+- Search信頼性の問題により、カスタムripgrep設定のサポートを削除
+- Exploreエージェントが不要な.md調査ファイルを作成するバグを修正
+- `/context`コマンドが「max_tokens must be greater than thinking.budget_tokens」エラーで失敗する問題を修正
+- `--mcp-config`フラグがファイルベースのMCP設定を適切にオーバーライドするように修正
+- サブエージェントでMCPツールが利用できない問題を修正
+- `--dangerously-skip-permissions`でフックとプラグインが実行されない問題を修正
+- 矢印キーでのタイプアヘッドナビゲーションの遅延を修正
+- VSCode: 入力フッターの選択インジケーターを復元
+
 ## 2.0.28
 
 - プランモードの強化 - 新しいPlanサブエージェントを導入
@@ -707,7 +725,6 @@
 
 - スタックオーバーフローエラーによるクラッシュを修正
 - dbストレージをオプションに。dbサポートがない場合は--continueと--resumeを無効化
-
 ## 0.2.98
 
 - 自動コンパクトが2回実行される問題を修正
