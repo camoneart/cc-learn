@@ -1,5 +1,14 @@
 # Claude Code 変更履歴
 
+## 2.0.35
+
+- コマンド検索時のファジー検索結果を改善
+- VSCode拡張を改善し、UI全体で`chat.fontSize`と`chat.fontFamily`設定を尊重し、リロードなしでフォント変更を即座に適用
+- `CLAUDE_CODE_EXIT_AFTER_STOP_DELAY`環境変数を追加し、指定したアイドル時間後にSDKモードを自動終了（自動化ワークフローやスクリプトに便利）
+- プロジェクト設定からlocalSettingsの拒否権限に`ignorePatterns`を移行
+- メッセージがnullの`stop_reason`と`stop_sequence`値を返す問題を修正
+- 空文字列やその他のfalsy値を持つ項目でメニューナビゲーションが動かなくなる問題を修正（例：`/hooks`メニュー）
+
 ## 2.0.34
 
 - VSCode拡張: 新しい会話の初期パーミッションモードを設定する機能を追加
