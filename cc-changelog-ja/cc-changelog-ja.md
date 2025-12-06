@@ -1,45 +1,76 @@
 # Claude Code 変更履歴
 
+## 2.0.60
+
+- バックグラウンドエージェントのサポートを追加。作業中にエージェントをバックグラウンドで実行可能に
+- すべてのスラッシュコマンドを無効にする `--disable-slash-commands` CLI フラグを追加
+- "Co-Authored-By" コミットメッセージにモデル名を追加
+- `/mcp enable [server-name]` または `/mcp disable [server-name]`ですべてのサーバーを素早く切り替え可能に
+- 事前承認された Web サイトの要約をスキップするように Fetch を更新
+- VSCode: 複数のターミナルクライアントが同時に IDE サーバーに接続できるようにサポートを追加
+
+## 2.0.59
+
+- 現在のセッションのエージェント設定を上書きする `--agent` CLI フラグを追加
+- 特定のエージェントのシステムプロンプト、ツール制限、モデルでメインスレッドを設定する `agent` 設定を追加
+- VS Code: .claude.json 設定ファイルが間違った場所から読み込まれる問題を修正
+
+## 2.0.58
+
+- Pro ユーザーがサブスクリプションの一部として Opus 4.5 にアクセス可能に！
+- タイマー期間が「12m 0s」ではなく「11m 60s」と表示される問題を修正
+- Windows: 管理設定が存在する場合、`C:\Program Files\ClaudeCode` を優先するように。`C:\ProgramData\ClaudeCode` のサポートは将来のバージョンで削除予定
+
+## 2.0.57
+
+- プラン拒否時のフィードバック入力を追加し、Claude に変更点を伝えることが可能に
+- VSCode: リアルタイム応答表示のためのストリーミングメッセージサポートを追加
+
+## 2.0.56
+
+- ターミナルプログレスバー（OSC 9;4）を有効/無効にする設定を追加
+- VSCode 拡張: VS Code のセカンダリサイドバー（VS Code 1.97+）のサポートを追加。ファイルエクスプローラーを左側に保ちながら、Claude Code を右側のサイドバーに表示可能に。設定でサイドバーを優先場所として設定が必要
+
 ## 2.0.55
 
-- プロキシのDNS解決がデフォルトで強制されていた問題を修正
+- プロキシの DNS 解決がデフォルトで強制されていた問題を修正
 - メモリロケーションセレクターで矢印キーを長押しした際にキーボードナビゲーションが応答しなくなる問題を修正
-- AskUserQuestionツールが最後の質問で単一選択の質問を自動送信するように改善
+- AskUserQuestion ツールが最後の質問で単一選択の質問を自動送信するように改善
 - `@`ファイル提案のファジーマッチングをより高速かつ正確に改善
 
 ## 2.0.54
 
-- フック: PermissionRequestフックで「常に許可」の提案を処理し、権限更新を適用できるように
-- iTerm通知が過剰に表示される問題を修正
+- フック: PermissionRequest フックで「常に許可」の提案を処理し、権限更新を適用できるように
+- iTerm 通知が過剰に表示される問題を修正
 
 ## 2.0.52
 
-- コマンドライン引数でClaudeを起動した際にメッセージが重複表示される問題を修正
-- /usageコマンドの進捗バーを修正
-- Waylandを実行しているLinuxシステムで画像貼り付けが動作しない問題を修正
-- bashコマンドで`$!`の使用を許可
+- コマンドライン引数で Claude を起動した際にメッセージが重複表示される問題を修正
+- /usage コマンドの進捗バーを修正
+- Wayland を実行している Linux システムで画像貼り付けが動作しない問題を修正
+- bash コマンドで`$!`の使用を許可
 
 ## 2.0.51
 
-- Opus 4.5を追加！
-- Claude Code for Desktopを公開
-- Claude Codeユーザーの使用制限を更新
-- ProユーザーがOpus 4.5へのアクセス権を購入可能に
+- Opus 4.5 を追加！
+- Claude Code for Desktop を公開
+- Claude Code ユーザーの使用制限を更新
+- Pro ユーザーが Opus 4.5 へのアクセス権を購入可能に
 - プランモードがより正確な計画を構築し、より徹底的に実行するように
-- 使用制限通知を「% used」に戻すよう/usageコマンドを修正
+- 使用制限通知を「% used」に戻すよう/usage コマンドを修正
 - 思考エラーの処理を修正
 - パフォーマンス低下を修正
 
 ## 2.0.50
 
-- MCPツールの入力スキーマにおける「ネストされた参照」を持つMCPツール呼び出しを妨げるバグを修正
+- MCP ツールの入力スキーマにおける「ネストされた参照」を持つ MCP ツール呼び出しを妨げるバグを修正
 - アップグレード時の不必要なエラーを抑制
-- ultrathinkテキスト表示を改善
+- ultrathink テキスト表示を改善
 - セッション制限警告メッセージを明確化
 
 ## 2.0.49
 
-- 削除されたテキストを貼り付けるためのreadline形式のCtrl+Yを追加
+- 削除されたテキストを貼り付けるための readline 形式の Ctrl+Y を追加
 - 使用制限警告メッセージを明確化
 - サブエージェント権限の処理を修正
 
@@ -50,9 +81,9 @@
 ## 2.0.47
 
 - `claude --teleport`のエラーメッセージと検証を改善
-- /usageのエラー処理を改善
+- /usage のエラー処理を改善
 - 終了時に履歴エントリがログされない競合状態を修正
-- Vertex AI設定がsettings.jsonから適用されない問題を修正
+- Vertex AI 設定が settings.json から適用されない問題を修正
 
 ## 2.0.46
 
@@ -62,7 +93,7 @@
 
 - Azure AI Foundry（Microsoft Foundry）サポートを追加
 - カスタムエージェントのツール権限リクエストを自動承認・拒否する`PermissionRequest`フックを追加
-- メッセージを「&」で始めることで、Web版Claude Codeでバックグラウンドタスクを送信可能に
+- メッセージを「&」で始めることで、Web 版 Claude Code でバックグラウンドタスクを送信可能に
 
 ## 2.0.44
 
@@ -72,13 +103,13 @@
 ## 2.0.43
 
 - カスタムエージェント用の`permissionMode`フィールドを追加
-- PreToolUseおよびPostToolUseフックに`tool_use_id`フィールドを追加
+- PreToolUse および PostToolUse フックに`tool_use_id`フィールドを追加
 - サブエージェント自動読み込み用の`skills`フロントマター機能を追加
 - `SubagentStart`フックイベントを追加
-- @メンション時のネストされたCLAUDE.mdファイル読み込み問題を修正
+- @メンション時のネストされた CLAUDE.md ファイル読み込み問題を修正
 - メッセージの重複レンダリング問題を修正
 - 視覚的ちらつきを修正
-- セルIDがパターン「cell-N」に一致する場合のNotebookEditツール問題を修正
+- セル ID がパターン「cell-N」に一致する場合の NotebookEdit ツール問題を修正
 
 ## 2.0.42
 
@@ -87,146 +118,146 @@
 ## 2.0.41
 
 - プロンプトベースのストップフックに`model`パラメータを追加し、フック評価用のカスタムモデルを指定可能に
-- ユーザー設定のスラッシュコマンドが2回読み込まれてレンダリング問題を引き起こす問題を修正
+- ユーザー設定のスラッシュコマンドが 2 回読み込まれてレンダリング問題を引き起こす問題を修正
 - コマンド説明でユーザー設定とプロジェクト設定の誤ったラベル付けを修正
 - プラグインコマンドフックが実行中にタイムアウトした際のクラッシュを修正
-- 修正: `--model haiku`使用時にBedrockユーザーが/modelピッカーで重複したOpusエントリを見なくなった
+- 修正: `--model haiku`使用時に Bedrock ユーザーが/model ピッカーで重複した Opus エントリを見なくなった
 - 信頼ダイアログとオンボーディングの壊れたセキュリティドキュメントリンクを修正
-- diffモーダルを閉じるためにESCを押すとモデルも中断される問題を修正
-- Ctrl-r履歴検索がスラッシュコマンドに移動しても検索がキャンセルされなくなった
+- diff モーダルを閉じるために ESC を押すとモデルも中断される問題を修正
+- Ctrl-r 履歴検索がスラッシュコマンドに移動しても検索がキャンセルされなくなった
 - SDK: フックのカスタムタイムアウトをサポート
-- より多くの安全なgitコマンドを承認なしで実行可能に
+- より多くの安全な git コマンドを承認なしで実行可能に
 - プラグイン: 出力スタイルの共有とインストールのサポートを追加
-- Webからセッションをテレポートすると自動的にアップストリームブランチを設定
+- Web からセッションをテレポートすると自動的にアップストリームブランチを設定
 
 ## 2.0.37
 
 - 通知のアイドル状態の計算方法を修正
-- Notificationフックイベントにマッチャー値を追加
+- Notification フックイベントにマッチャー値を追加
 - 出力スタイル設定に`keep-coding-instructions`フロントマターオプションを導入
 
 ## 2.0.36
 
 - `DISABLE_AUTOUPDATER`環境変数がパッケージマネージャーの更新通知を適切に無効化するように修正
-- キューに入れられたメッセージが誤ってbashコマンドとして実行される問題を解決
+- キューに入れられたメッセージが誤って bash コマンドとして実行される問題を解決
 - キューに入れられたメッセージが処理される際に入力中の内容が失われる問題を修正
 
 ## 2.0.35
 
 - コマンド検索時のファジー検索結果を改善
-- VSCode拡張を改善し、UI全体で`chat.fontSize`と`chat.fontFamily`設定を尊重し、リロードなしでフォント変更を即座に適用
-- `CLAUDE_CODE_EXIT_AFTER_STOP_DELAY`環境変数を追加し、指定したアイドル時間後にSDKモードを自動終了（自動化ワークフローやスクリプトに便利）
-- プロジェクト設定からlocalSettingsの拒否権限に`ignorePatterns`を移行
-- メッセージがnullの`stop_reason`と`stop_sequence`値を返す問題を修正
-- 空文字列やその他のfalsy値を持つ項目でメニューナビゲーションが動かなくなる問題を修正（例：`/hooks`メニュー）
+- VSCode 拡張を改善し、UI 全体で`chat.fontSize`と`chat.fontFamily`設定を尊重し、リロードなしでフォント変更を即座に適用
+- `CLAUDE_CODE_EXIT_AFTER_STOP_DELAY`環境変数を追加し、指定したアイドル時間後に SDK モードを自動終了（自動化ワークフローやスクリプトに便利）
+- プロジェクト設定から localSettings の拒否権限に`ignorePatterns`を移行
+- メッセージが null の`stop_reason`と`stop_sequence`値を返す問題を修正
+- 空文字列やその他の falsy 値を持つ項目でメニューナビゲーションが動かなくなる問題を修正（例：`/hooks`メニュー）
 
 ## 2.0.34
 
-- VSCode拡張: 新しい会話の初期パーミッションモードを設定する機能を追加
-- ネイティブRustベースのファジーファインダーによりファイルパス提案のパフォーマンスを改善
-- OAuth対応MCPサーバー（例：Slack）との接続時にハングアップする無限トークン更新ループを修正
-- 大きなファイル（特にbase64エンコードされた画像）の読み書き時のメモリクラッシュを修正
+- VSCode 拡張: 新しい会話の初期パーミッションモードを設定する機能を追加
+- ネイティブ Rust ベースのファジーファインダーによりファイルパス提案のパフォーマンスを改善
+- OAuth 対応 MCP サーバー（例：Slack）との接続時にハングアップする無限トークン更新ループを修正
+- 大きなファイル（特に base64 エンコードされた画像）の読み書き時のメモリクラッシュを修正
 
 ## 2.0.33
 
 - ネイティブバイナリインストールの起動速度が向上
-- シンボリックリンクを適切に解決することで、`claude doctor`がHomebrewとnpm-globalインストールを誤検出する問題を修正
-- `claude mcp serve`が互換性のないoutputSchemasを持つツールを公開する問題を修正
+- シンボリックリンクを適切に解決することで、`claude doctor`が Homebrew と npm-global インストールを誤検出する問題を修正
+- `claude mcp serve`が互換性のない outputSchemas を持つツールを公開する問題を修正
 
 ## 2.0.32
 
-- 出力スタイルを復活: コミュニティフィードバックに基づき、v2.0.30で非推奨になった出力スタイル機能を復元
-- 会社のお知らせ機能: Claude Code起動時にお知らせを表示する`companyAnnouncements`設定を追加
-- バグ修正: PostToolUseフック実行中にフックの進行状況メッセージが正しく更新されない問題を修正
+- 出力スタイルを復活: コミュニティフィードバックに基づき、v2.0.30 で非推奨になった出力スタイル機能を復元
+- 会社のお知らせ機能: Claude Code 起動時にお知らせを表示する`companyAnnouncements`設定を追加
+- バグ修正: PostToolUse フック実行中にフックの進行状況メッセージが正しく更新されない問題を修正
 
 ## 2.0.31
 
-- Windowsネイティブインストール: モード切り替えのショートカットをAlt+MからShift+Tabに変更
-- Vertex サポート: サポートされているモデルでWeb検索機能を追加
-- VSCode設定: `.gitignore`されたファイルをファイル検索に含めるかどうかを制御する`respectGitIgnore`設定を導入（デフォルトはtrue）
-- バグ修正: サブエージェントとMCPサーバーで「Tool names must be unique」エラーが発生する問題を解決
+- Windows ネイティブインストール: モード切り替えのショートカットを Alt+M から Shift+Tab に変更
+- Vertex サポート: サポートされているモデルで Web 検索機能を追加
+- VSCode 設定: `.gitignore`されたファイルをファイル検索に含めるかどうかを制御する`respectGitIgnore`設定を導入（デフォルトは true）
+- バグ修正: サブエージェントと MCP サーバーで「Tool names must be unique」エラーが発生する問題を解決
 - `/compact`コマンドが既存のコンパクト境界を尊重し、`prompt_too_long`エラーで失敗しなくなるように修正
 - 会話のコンパクト化を改善し、既存のコンパクト境界を尊重することで重複した要約を防止
 - プラグイン管理: プラグインのアンインストール機能を修正し、適切に削除できるように
 
 ## 2.0.30
 
-- macOSでキーチェーンがロックされている際のAPIキーエラーに`security unlock-keychain`実行のヒントを追加
-- サンドボックス設定に`allowUnsandboxedCommands`を追加し、ポリシーレベルでdangerouslyDisableSandboxエスケープハッチを制限可能に
+- macOS でキーチェーンがロックされている際の API キーエラーに`security unlock-keychain`実行のヒントを追加
+- サンドボックス設定に`allowUnsandboxedCommands`を追加し、ポリシーレベルで dangerouslyDisableSandbox エスケープハッチを制限可能に
 - カスタムエージェント定義に`disallowedTools`フィールドを追加し、明示的なツールブロックが可能に
 - プロンプトベースのストップフックを追加
-- VSCode: `.gitignore`されたファイルを検索に含めるかどうかを選択できる`respectGitIgnore`設定を実装（デフォルトはtrue）
-- ネイティブビルドでSSE MCPサーバーを有効化
+- VSCode: `.gitignore`されたファイルを検索に含めるかどうかを選択できる`respectGitIgnore`設定を実装（デフォルトは true）
+- ネイティブビルドで SSE MCP サーバーを有効化
 - 出力スタイルを非推奨化。`/output-style`でオプションを確認し、代わりに`--system-prompt`、`--append-system-prompt`、`CLAUDE.md`、またはプラグインを使用してください
-- Search信頼性の問題により、カスタムripgrep設定のサポートを削除
-- Exploreエージェントが不要な.md調査ファイルを作成するバグを修正
+- Search 信頼性の問題により、カスタム ripgrep 設定のサポートを削除
+- Explore エージェントが不要な.md 調査ファイルを作成するバグを修正
 - `/context`コマンドが「max_tokens must be greater than thinking.budget_tokens」エラーで失敗する問題を修正
-- `--mcp-config`フラグがファイルベースのMCP設定を適切にオーバーライドするように修正
-- サブエージェントでMCPツールが利用できない問題を修正
+- `--mcp-config`フラグがファイルベースの MCP 設定を適切にオーバーライドするように修正
+- サブエージェントで MCP ツールが利用できない問題を修正
 - `--dangerously-skip-permissions`でフックとプラグインが実行されない問題を修正
 - 矢印キーでのタイプアヘッドナビゲーションの遅延を修正
 - VSCode: 入力フッターの選択インジケーターを復元
 
 ## 2.0.28
 
-- プランモードの強化 - 新しいPlanサブエージェントを導入
-- サブエージェント機能 - Claudeがサブエージェントを再開し、使用するモデルを動的に選択可能に
+- プランモードの強化 - 新しい Plan サブエージェントを導入
+- サブエージェント機能 - Claude がサブエージェントを再開し、使用するモデルを動的に選択可能に
 - SDK: 予算管理のための`--max-budget-usd`フラグを追加
 - プラグイン検出 - カスタムスラッシュコマンド、サブエージェント、出力スタイルが`.gitignore`でフィルタリングされなくなった
-- `/terminal-setup`がVS CodeでShift + Enterにバックスラッシュを追加しなくなるように修正
-- gitプラグインサポート - フラグメント構文を使用したgitベースのプラグインのブランチとタグサポートを追加（例：`owner/repo#branch`）
+- `/terminal-setup`が VS Code で Shift + Enter にバックスラッシュを追加しなくなるように修正
+- git プラグインサポート - フラグメント構文を使用した git ベースのプラグインのブランチとタグサポートを追加（例：`owner/repo#branch`）
 - macOS: ホームディレクトリからの初回起動時に権限プロンプトが表示されるバグを修正
 - その他のバグ修正
 
 ## 2.0.27
 
-- パーミッションプロンプトの新しいUI - Claude Codeがパーミッションをリクエストする際の視覚的なプレゼンテーションを強化
+- パーミッションプロンプトの新しい UI - Claude Code がパーミッションをリクエストする際の視覚的なプレゼンテーションを強化
 - セッション再開の改善 - セッション再開画面に現在のブランチフィルタリングと検索機能を追加し、ナビゲーションを容易に
 - ディレクトリ@メンションのバグ修正 - ディレクトリを@メンションすると「No assistant message found」エラーが発生する問題を解決
-- VSCode拡張のファイル検索 - ファイル検索に.gitignoreされたファイルを含める新しい設定を追加
-- VSCode拡張の安定性 - 無関係な「Warmup」会話や設定が時折デフォルトにリセットされる問題を修正
+- VSCode 拡張のファイル検索 - ファイル検索に.gitignore されたファイルを含める新しい設定を追加
+- VSCode 拡張の安定性 - 無関係な「Warmup」会話や設定が時折デフォルトにリセットされる問題を修正
 
 ## 2.0.25
 
-- レガシーSDKエントリーポイントを削除。今後のSDKアップデートは @anthropic-ai/claude-agent-sdk への移行が必要: https://docs.claude.com/en/docs/claude-code/sdk/migration-guide
+- レガシー SDK エントリーポイントを削除。今後の SDK アップデートは @anthropic-ai/claude-agent-sdk への移行が必要: https://docs.claude.com/en/docs/claude-code/sdk/migration-guide
 
 ## 2.0.24
 
 - `--setting-sources 'project'` が指定された際にプロジェクトレベルのスキルが読み込まれないバグを修正
 - Claude Code Web: Web → CLI テレポートのサポートを追加
-- Sandbox: LinuxとMac用のBashToolサンドボックスモードをリリース
+- Sandbox: Linux と Mac 用の BashTool サンドボックスモードをリリース
 
 ## 2.0.22
 
 - スラッシュコマンドをスクロールする際のコンテンツレイアウトシフトを修正
 - IDE: 思考モードを有効/無効にするトグルを追加
 - 並列ツール呼び出しで重複した権限プロンプトが表示されるバグを修正
-- エンタープライズ管理のMCP許可リストと拒否リストのサポートを追加
+- エンタープライズ管理の MCP 許可リストと拒否リストのサポートを追加
 
 ## 2.0.21
 
-- MCPの`structuredContent`フィールドをツールレスポンスでサポート
+- MCP の`structuredContent`フィールドをツールレスポンスでサポート
 - インタラクティブな質問ツールを追加
-- プランモードでClaudeがより頻繁に質問するように
-- ProユーザーのモデルオプションとしてHaiku 4.5を追加
+- プランモードで Claude がより頻繁に質問するように
+- Pro ユーザーのモデルオプションとして Haiku 4.5 を追加
 - キューに入れられたコマンドが前のメッセージの出力にアクセスできない問題を修正
 
 ## 2.0.20
 
-- Claude Skillsのサポートを追加
+- Claude Skills のサポートを追加
 
 ## 2.0.19
 
-- 長時間実行されるbashコマンドを強制終了する代わりに自動的にバックグラウンド化。BASH_DEFAULT_TIMEOUT_MSでカスタマイズ可能
-- プリントモードで不必要にHaikuが呼び出されるバグを修正
+- 長時間実行される bash コマンドを強制終了する代わりに自動的にバックグラウンド化。BASH_DEFAULT_TIMEOUT_MS でカスタマイズ可能
+- プリントモードで不必要に Haiku が呼び出されるバグを修正
 
 ## 2.0.17
 
-- モデルセレクターにHaiku 4.5を追加！
-- Haiku 4.5はプランモードで自動的にSonnetを使用し、実行にはHaikuを使用（デフォルトでSonnetPlan）
-- サードパーティ（BedrockとVertex）はまだ自動アップグレードされません。`ANTHROPIC_DEFAULT_HAIKU_MODEL`を設定することで手動アップグレード可能
-- Exploreサブエージェントを導入。Haikuを使用してコードベースを効率的に検索し、コンテキストを節約！
-- OTEL: HTTP_PROXYとHTTPS_PROXYをサポート
+- モデルセレクターに Haiku 4.5 を追加！
+- Haiku 4.5 はプランモードで自動的に Sonnet を使用し、実行には Haiku を使用（デフォルトで SonnetPlan）
+- サードパーティ（Bedrock と Vertex）はまだ自動アップグレードされません。`ANTHROPIC_DEFAULT_HAIKU_MODEL`を設定することで手動アップグレード可能
+- Explore サブエージェントを導入。Haiku を使用してコードベースを効率的に検索し、コンテキストを節約！
+- OTEL: HTTP_PROXY と HTTPS_PROXY をサポート
 - `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`でリリースノートの取得を無効化
 
 ## 2.0.15
@@ -236,13 +267,13 @@
 
 ## 2.0.14
 
-- @メンションのMCPサーバーをオン/オフ切り替える機能を修正
-- インライン環境変数を使用したbashの権限チェックを改善
-- ultrathink + 思考     を修正
+- @メンションの MCP サーバーをオン/オフ切り替える機能を修正
+- インライン環境変数を使用した bash の権限チェックを改善
+- ultrathink + 思考 を修正
 - 不要なログインを削減
-- --system-promptをドキュメント化
+- --system-prompt をドキュメント化
 - レンダリングに関するいくつかの改善
-- プラグインUIの改善
+- プラグイン UI の改善
 
 ## 2.0.13
 
@@ -250,7 +281,7 @@
 
 ## 2.0.12
 
-- **プラグインシステムリリース**: マーケットプレイスからカスタムコマンド、エージェント、フック、MCPサーバーでClaude Codeを拡張
+- **プラグインシステムリリース**: マーケットプレイスからカスタムコマンド、エージェント、フック、MCP サーバーで Claude Code を拡張
 - プラグイン管理のための`/plugin install`、`/plugin enable/disable`、`/plugin marketplace`コマンド
 - チームコラボレーションのための`extraKnownMarketplaces`によるリポジトリレベルのプラグイン設定
 - プラグインの構造と設定を検証する`/plugin validate`コマンド
@@ -264,159 +295,159 @@
 
 ## 2.0.11
 
-- システムプロンプトのサイズを1.4kトークン削減
+- システムプロンプトのサイズを 1.4k トークン削減
 - IDE: よりスムーズなインタラクションのためのキーボードショートカットとフォーカス問題を修正
-- Opusフォールバックのレート制限エラーが誤って表示される問題を修正
-- /add-dirコマンドで間違ったデフォルトタブが選択される問題を修正
+- Opus フォールバックのレート制限エラーが誤って表示される問題を修正
+- /add-dir コマンドで間違ったデフォルトタブが選択される問題を修正
 
 ## 2.0.10
 
-- バターのように滑らかなUIのためにターミナルレンダラーを書き直し
-- @メンション、または/mcpでMCPサーバーを有効/無効化
-- bashモードでシェルコマンドのタブ補完を追加
-- PreToolUseフックでツール入力を変更できるように
-- Ctrl-Gを押してシステム設定のテキストエディタでプロンプトを編集
-- コマンドに環境変数を含むbash権限チェックの修正
+- バターのように滑らかな UI のためにターミナルレンダラーを書き直し
+- @メンション、または/mcp で MCP サーバーを有効/無効化
+- bash モードでシェルコマンドのタブ補完を追加
+- PreToolUse フックでツール入力を変更できるように
+- Ctrl-G を押してシステム設定のテキストエディタでプロンプトを編集
+- コマンドに環境変数を含む bash 権限チェックの修正
 
 ## 2.0.9
 
-- bashバックグラウンド化が動作しなくなった回帰を修正
+- bash バックグラウンド化が動作しなくなった回帰を修正
 
 ## 2.0.8
 
-- BedrockのデフォルトSonnetモデルを`global.anthropic.claude-sonnet-4-5-20250929-v1:0`に更新
+- Bedrock のデフォルト Sonnet モデルを`global.anthropic.claude-sonnet-4-5-20250929-v1:0`に更新
 - IDE: チャットでのファイルとフォルダーのドラッグアンドドロップサポートを追加
 - /context: 思考ブロックのカウントを修正
 - ダークターミナルでライトテーマを使用しているユーザー向けにメッセージレンダリングを改善
-- 非推奨の.claude.jsonのallowedTools、ignorePatterns、env、todoFeatureEnabled設定オプションを削除（代わりにsettings.jsonで設定）
+- 非推奨の.claude.json の allowedTools、ignorePatterns、env、todoFeatureEnabled 設定オプションを削除（代わりに settings.json で設定）
 
 ## 2.0.5
 
-- IDE: EnterとTabでのIME意図しないメッセージ送信を修正
+- IDE: Enter と Tab での IME 意図しないメッセージ送信を修正
 - IDE: ログイン画面に「ターミナルで開く」リンクを追加
-- 未処理のOAuth期限切れ401 APIエラーを修正
-- SDK: 重複メッセージを防ぐためにSDKUserMessageReplay.isReplayを追加
+- 未処理の OAuth 期限切れ 401 API エラーを修正
+- SDK: 重複メッセージを防ぐために SDKUserMessageReplay.isReplay を追加
 
 ## 2.0.1
 
-- BedrockとVertexのSonnet 4.5デフォルトモデル設定変更をスキップ
+- Bedrock と Vertex の Sonnet 4.5 デフォルトモデル設定変更をスキップ
 - さまざまなバグ修正と表示改善
 
 ## 2.0.0
 
-- 新しいネイティブVS Code拡張機能
+- 新しいネイティブ VS Code 拡張機能
 - アプリ全体に新しいデザイン
-- /rewindで会話を巻き戻してコード変更を元に戻す
-- /usageコマンドでプラン制限を確認
-- Tabキーで思考モードを切り替え（セッション間で保持）
-- Ctrl-Rで履歴検索
-- claudeのconfig未出荷コマンド
-- フック: PostToolUseの'tool_use' idsが'tool_result'ブロックなしで見つかるエラーを削減
-- SDK: Claude Code SDKがClaude Agent SDKに
+- /rewind で会話を巻き戻してコード変更を元に戻す
+- /usage コマンドでプラン制限を確認
+- Tab キーで思考モードを切り替え（セッション間で保持）
+- Ctrl-R で履歴検索
+- claude の config 未出荷コマンド
+- フック: PostToolUse の'tool_use' ids が'tool_result'ブロックなしで見つかるエラーを削減
+- SDK: Claude Code SDK が Claude Agent SDK に
 - `--agents`フラグでサブエージェントを動的に追加
 
 ## 1.0.126
 
-- BedrockとVertexで/contextコマンドを有効化
-- HTTPベースのOpenTelemetryエクスポーター用のmTLSサポートを追加
+- Bedrock と Vertex で/context コマンドを有効化
+- HTTP ベースの OpenTelemetry エクスポーター用の mTLS サポートを追加
 
 ## 1.0.124
 
-- `CLAUDE_BASH_NO_LOGIN`環境変数を1またはtrueに設定してBashToolのログインシェルをスキップ
-- BedrockとVertex環境変数がすべての文字列を真と評価する問題を修正
-- 権限が拒否された際に許可されたツールのリストをClaudeに通知しないように
-- Bashツールの権限チェックにおけるセキュリティ脆弱性を修正
-- 大きなファイルに対するVSCode拡張機能のパフォーマンスを改善
+- `CLAUDE_BASH_NO_LOGIN`環境変数を 1 または true に設定して BashTool のログインシェルをスキップ
+- Bedrock と Vertex 環境変数がすべての文字列を真と評価する問題を修正
+- 権限が拒否された際に許可されたツールのリストを Claude に通知しないように
+- Bash ツールの権限チェックにおけるセキュリティ脆弱性を修正
+- 大きなファイルに対する VSCode 拡張機能のパフォーマンスを改善
 
 ## 1.0.123
 
-- Bash権限ルールがマッチング時に出力リダイレクトをサポート（例：`Bash(python:*)`は`python script.py > output.txt`にマッチ）
+- Bash 権限ルールがマッチング時に出力リダイレクトをサポート（例：`Bash(python:*)`は`python script.py > output.txt`にマッチ）
 - "don't think"のような否定フレーズで思考モードがトリガーされる問題を修正
 - トークンストリーミング中のレンダリングパフォーマンス低下を修正
-- SlashCommandツールを追加。Claudeがスラッシュコマンドを呼び出せるように。https://docs.claude.com/en/docs/claude-code/slash-commands#SlashCommand-tool
-- BashToolの環境スナップショットロギングを強化
+- SlashCommand ツールを追加。Claude がスラッシュコマンドを呼び出せるように。https://docs.claude.com/en/docs/claude-code/slash-commands#SlashCommand-tool
+- BashTool の環境スナップショットロギングを強化
 - ヘッドレスモードで会話を再開する際に思考が不必要に有効になることがあったバグを修正
-- --debugログをファイルに移行し、簡単にtailとフィルタリングを可能に
+- --debug ログをファイルに移行し、簡単に tail とフィルタリングを可能に
 
 ## 1.0.120
 
 - 特に大きなプロンプトで顕著な入力ラグを修正
-- VSCode拡張機能のコマンドレジストリとセッションダイアログのユーザーエクスペリエンスを改善
-- セッションダイアログの応答性��ビジュアルフィードバックを強化
-- worktreeサポートチェックを削除してIDE互換性問題を修正
-- プレフィックスマッチングを使用してBashツールの権限チェックがバイパスされる可能性があったセキュリティ脆弱性を修正
+- VSCode 拡張機能のコマンドレジストリとセッションダイアログのユーザーエクスペリエンスを改善
+- セッションダイアログの応答性 �� ビジュアルフィードバックを強化
+- worktree サポートチェックを削除して IDE 互換性問題を修正
+- プレフィックスマッチングを使用して Bash ツールの権限チェックがバイパスされる可能性があったセキュリティ脆弱性を修正
 
 ## 1.0.119
 
-- インタラクティブモードに入る際にプロセスが視覚的にフリーズするWindows問題を修正
-- headersHelper設定によるMCPサーバーの動的ヘッダーをサポート
+- インタラクティブモードに入る際にプロセスが視覚的にフリーズする Windows 問題を修正
+- headersHelper 設定による MCP サーバーの動的ヘッダーをサポート
 - ヘッドレスセッションで思考モードが動作しない問題を修正
 - スラッシュコマンドが許可されたツールを置き換える代わりに更新するように修正
 
 ## 1.0.117
 
-- Ctrl-R履歴検索を追加してbash/zshのように以前のコマンドを呼び出し
-- 特にWindowsでの入力ラグを修正
-- acceptEditsモードで自動許可コマンドにsedコマンドを追加
-- WindowsのPATH比較をドライブレターで大文字小文字を区別しないように修正
-- /add-dir出力に権限管理のヒントを追加
+- Ctrl-R 履歴検索を追加して bash/zsh のように以前のコマンドを呼び出し
+- 特に Windows での入力ラグを修正
+- acceptEdits モードで自動許可コマンドに sed コマンドを追加
+- Windows の PATH 比較をドライブレターで大文字小文字を区別しないように修正
+- /add-dir 出力に権限管理のヒントを追加
 
 ## 1.0.115
 
 - 強化されたビジュアルエフェクトで思考モード表示を改善
-- /tと入力してプロンプト内で一時的に思考モードを無効化
-- globとgrepツールのパス検証を改善
+- /t と入力してプロンプト内で一時的に思考モードを無効化
+- glob と grep ツールのパス検証を改善
 - ビジュアルクラッターを減らすためにポストツールフックの出力を圧縮表示
 - ロード状態が完了した際のビジュアルフィードバックを修正
-- 権限リクエストダイアログのUI一貫性を改善
+- 権限リクエストダイアログの UI 一貫性を改善
 
 ## 1.0.113
 
 - インタラクティブモードでのパイプ入力を非推奨に
-- トランスクリプト切り替えのCtrl+RキーバインディングをCtrl+Oに移動
+- トランスクリプト切り替えの Ctrl+R キーバインディングを Ctrl+O に移動
 
 ## 1.0.112
 
 - トランスクリプトモード（Ctrl+R）: 各アシスタントメッセージを生成するために使用されたモデルを追加
-- 一部のClaude MaxユーザーがClaude Proユーザーとして誤って認識される問題に対処
-- フック: SessionEndフック用のsystemMessageサポートを追加
+- 一部の Claude Max ユーザーが Claude Pro ユーザーとして誤って認識される問題に対処
+- フック: SessionEnd フック用の systemMessage サポートを追加
 - スピナーのヒントを無効にする`spinnerTipsEnabled`設定を追加
 - IDE: さまざまな改善とバグ修正
 
 ## 1.0.111
 
-- /modelで提供されたモデル名を検証するように
-- 不正なシェル構文解析によるBashツールクラッシュを修正
+- /model で提供されたモデル名を検証するように
+- 不正なシェル構文解析による Bash ツールクラッシュを修正
 
 ## 1.0.110
 
-- /terminal-setupコマンドでWezTermをサポート
-- MCP: OAuthトークンが有効期限前に予防的に更新されるように
-- バックグラウンドBashプロセスの信頼性問題を修正
+- /terminal-setup コマンドで WezTerm をサポート
+- MCP: OAuth トークンが有効期限前に予防的に更新されるように
+- バックグラウンド Bash プロセスの信頼性問題を修正
 
 ## 1.0.109
 
-- SDK: `--include-partial-messages` CLIフラグによる部分メッセージストリーミングサポートを追加
+- SDK: `--include-partial-messages` CLI フラグによる部分メッセージストリーミングサポートを追加
 
 ## 1.0.106
 
-- Windows: パス権限マッチングをPOSIX形式で一貫して使用するように修正（例：`Read(//c/Users/...)`）
+- Windows: パス権限マッチングを POSIX 形式で一貫して使用するように修正（例：`Read(//c/Users/...)`）
 
 ## 1.0.97
 
-- 設定: /doctorが権限ルールの構文を検証して修正を提案するように
+- 設定: /doctor が権限ルールの構文を検証して修正を提案するように
 
 ## 1.0.94
 
 - Vertex: サポートされているモデルのグローバルエンドポイントのサポートを追加
-- /memoryコマンドでインポートされたすべてのメモリファイルを直接編集可能に
+- /memory コマンドでインポートされたすべてのメモリファイルを直接編集可能に
 - SDK: コールバックとしてカスタムツールを追加
-- 現在のtodoアイテムをリストする/todosコマンドを追加
+- 現在の todo アイテムをリストする/todos コマンドを追加
 
 ## 1.0.93
 
-- Windows: クリップボードから画像を貼り付けるためのalt + vショートカットを追加
-- 指定されたホスト名とIPのプロキシをバイパスするためのNO_PROXY環境変数をサポート
+- Windows: クリップボードから画像を貼り付けるための alt + v ショートカットを追加
+- 指定されたホスト名と IP のプロキシをバイパスするための NO_PROXY 環境変数をサポート
 
 ## 1.0.90
 
@@ -426,27 +457,27 @@
 
 - "OAuth authentication is currently not supported"を引き起こす問題を修正
 - ステータスライン入力に`exceeds_200k_tokens`を含めるように
-- /costでの誤った使用量追跡を修正
-- モデルエイリアスopusplan、opus、sonnetを制御するための`ANTHROPIC_DEFAULT_SONNET_MODEL`と`ANTHROPIC_DEFAULT_OPUS_MODEL`を導入
-- Bedrock: デフォルトのSonnetモデルをSonnet 4に更新
+- /cost での誤った使用量追跡を修正
+- モデルエイリアス opusplan、opus、sonnet を制御するための`ANTHROPIC_DEFAULT_SONNET_MODEL`と`ANTHROPIC_DEFAULT_OPUS_MODEL`を導入
+- Bedrock: デフォルトの Sonnet モデルを Sonnet 4 に更新
 
 ## 1.0.86
 
-- コンテキスト問題をセルフサービスでデバッグするための/contextを追加
-- SDK: すべてのSDKメッセージにUUIDサポートを追加
-- SDK: ユーザーメッセージをstdoutに再生する`--replay-user-messages`を追加
+- コンテキスト問題をセルフサービスでデバッグするための/context を追加
+- SDK: すべての SDK メッセージに UUID サポートを追加
+- SDK: ユーザーメッセージを stdout に再生する`--replay-user-messages`を追加
 
 ## 1.0.85
 
 - ステータスライン入力にセッションコスト情報を含めるように
-- フック: SessionEndフックを導入
+- フック: SessionEnd フックを導入
 
 ## 1.0.84
 
-- ネットワークが不安定な際のtool_use/tool_result idミスマッチエラーを修正
-- タスクをまとめる際にClaudeがリアルタイムステアリングを無視することがある問題を修正
-- @メンション: エージェント、出力スタイル、スラッシュコマンドの編集を容易にするために~/.claude/*ファイルを提案に追加
-- デフォルトで組み込みripgrepを使用。この動作をオプトアウトするにはUSE_BUILTIN_RIPGREP=0を設定
+- ネットワークが不安定な際の tool_use/tool_result id ミスマッチエラーを修正
+- タスクをまとめる際に Claude がリアルタイムステアリングを無視することがある問題を修正
+- @メンション: エージェント、出力スタイル、スラッシュコマンドの編集を容易にするために~/.claude/\*ファイルを提案に追加
+- デフォルトで組み込み ripgrep を使用。この動作をオプトアウトするには USE_BUILTIN_RIPGREP=0 を設定
 
 ## 1.0.83
 
@@ -456,10 +487,10 @@
 ## 1.0.82
 
 - SDK: リクエストキャンセルサポートを追加
-- SDK: カスタムパスを検索する新しいadditionalDirectoriesオプション、スラッシュコマンド処理の改善
-- 設定: .claude/settings.jsonファイルの無効なフィールドを検証で防止
+- SDK: カスタムパスを検索する新しい additionalDirectories オプション、スラッシュコマンド処理の改善
+- 設定: .claude/settings.json ファイルの無効なフィールドを検証で防止
 - MCP: ツール名の一貫性を改善
-- Bash: Claudeが大きなファイルを自動的に読み取ろうとするとクラッシュする問題を修正
+- Bash: Claude が大きなファイルを自動的に読み取ろうとするとクラッシュする問題を修正
 
 ## 1.0.81
 
@@ -468,31 +499,31 @@
 
 ## 1.0.80
 
-- UI改善: カスタムサブエージェントカラーとスピナーレンダリング問題のテキストコントラストを修正
+- UI 改善: カスタムサブエージェントカラーとスピナーレンダリング問題のテキストコントラストを修正
 
 ## 1.0.77
 
-- Bashツール: heredocと複数行文字列のエスケープを修正、stderrリダイレクション処理を改善
+- Bash ツール: heredoc と複数行文字列のエスケープを修正、stderr リダイレクション処理を改善
 - SDK: セッションサポートと権限拒否追跡を追加
 - 会話要約におけるトークン制限エラーを修正
-- Opus Plan Mode: プランモードでのみOpusを実行し、それ以外ではSonnetを使用する新しい設定を/modelに追加
+- Opus Plan Mode: プランモードでのみ Opus を実行し、それ以外では Sonnet を使用する新しい設定を/model に追加
 
 ## 1.0.73
 
 - MCP: 複数の設定ファイルを`--mcp-config file1.json file2.json`でサポート
-- MCP: EscキーでOAuth認証フローをキャンセル
+- MCP: Esc キーで OAuth 認証フローをキャンセル
 - Bash: コマンド検証を改善し、誤ったセキュリティ警告を削減
 - UI: スピナーアニメーションとステータスラインの視覚的階層を強化
-- Linux: Alpineとmuslベースのディストリビューションのサポートを追加（別途ripgrepのインストールが必要）
+- Linux: Alpine と musl ベースのディストリビューションのサポートを追加（別途 ripgrep のインストールが必要）
 
 ## 1.0.72
 
-- 権限を尋ねる: /permissionsで特定のツールの使用確認を常に求めるようにClaude Codeを設定
+- 権限を尋ねる: /permissions で特定のツールの使用確認を常に求めるように Claude Code を設定
 
 ## 1.0.71
 
-- バックグラウンドコマンド: (Ctrl-b)で任意のBashコマンドをバックグラウンドで実行し、Claudeが作業を続行できるように（開発サーバー、ログのtailなどに最適）
-- カスタマイズ可能なステータスライン: /statuslineでターミナルプロンプトをClaude Codeに追加
+- バックグラウンドコマンド: (Ctrl-b)で任意の Bash コマンドをバックグラウンドで実行し、Claude が作業を続行できるように（開発サーバー、ログの tail などに最適）
+- カスタマイズ可能なステータスライン: /statusline でターミナルプロンプトを Claude Code に追加
 
 ## 1.0.70
 
@@ -502,149 +533,149 @@
 
 ## 1.0.69
 
-- Opusをバージョン4.1にアップグレード
+- Opus をバージョン 4.1 にアップグレード
 
 ## 1.0.68
 
 - `/pr-comments`などの特定のコマンドで誤ったモデル名が使用される問題を修正
-- Windows: allowまたはdenyツールとプロジェクト信頼の権限チェックを改善。これにより`.claude.json`に新しいプロジェクトエントリが作成される可能性があります - 必要に応じてhistoryフィールドを手動でマージ
-- Windows: pnpmなどのコマンド実行時の"No such file or directory"エラーを排除するためにサブプロセス生成を改善
-- /doctorコマンドをCLAUDE.mdとMCPツールコンテキストで強化してセルフサービスデバッグを実現
-- SDK: ツール確認のためのcanUseTool コールバックサポートを追加
+- Windows: allow または deny ツールとプロジェクト信頼の権限チェックを改善。これにより`.claude.json`に新しいプロジェクトエントリが作成される可能性があります - 必要に応じて history フィールドを手動でマージ
+- Windows: pnpm などのコマンド実行時の"No such file or directory"エラーを排除するためにサブプロセス生成を改善
+- /doctor コマンドを CLAUDE.md と MCP ツールコンテキストで強化してセルフサービスデバッグを実現
+- SDK: ツール確認のための canUseTool コールバックサポートを追加
 - `disableAllHooks`設定を追加
 - 大きなリポジトリでのファイル提案パフォーマンスを改善
 
 ## 1.0.65
 
 - IDE: 診断のための接続安定性問題とエラー処理を修正
-- Windows: .bashrcファイルのないユーザー向けのシェル環境セットアップを修正
+- Windows: .bashrc ファイルのないユーザー向けのシェル環境セットアップを修正
 
 ## 1.0.64
 
 - エージェント: モデルカスタマイズサポートを追加 - エージェントが使用するモデルを指定可能に
 - エージェント: 再帰的エージェントツールへの意図しないアクセスを修正
-- フック: 警告とコンテキストを表示するためのsystemMessageフィールドをフックJSON出力に追加
+- フック: 警告とコンテキストを表示するための systemMessage フィールドをフック JSON 出力に追加
 - SDK: 複数ターンの会話にわたるユーザー入力追跡を修正
 - ファイル検索と@メンション提案に隠しファイルを追加
 
 ## 1.0.63
 
-- Windows: ファイル検索、@agentメンション、カスタムスラッシュコマンド機能を修正
+- Windows: ファイル検索、@agent メンション、カスタムスラッシュコマンド機能を修正
 
 ## 1.0.62
 
 - カスタムエージェント用のタイプアヘッドを含む@メンションサポートを追加。@で呼び出し
-- フック: 新しいセッション初期化用のSessionStartフックを追加
-- /add-dirコマンドでディレクトリパスのタイプアヘッドをサポート
+- フック: 新しいセッション初期化用の SessionStart フックを追加
+- /add-dir コマンドでディレクトリパスのタイプアヘッドをサポート
 - ネットワーク接続チェックの信頼性を改善
 
 ## 1.0.61
 
-- トランスクリプトモード（Ctrl+R）: トランスクリプトモードを終了するためにEscキーを中断ではなく終了に変更
-- 設定: JSONファイルから設定を読み込むための`--settings`フラグを追加
+- トランスクリプトモード（Ctrl+R）: トランスクリプトモードを終了するために Esc キーを中断ではなく終了に変更
+- 設定: JSON ファイルから設定を読み込むための`--settings`フラグを追加
 - 設定: シンボリックリンクである設定ファイルパスの解決を修正
 - OTEL: 認証変更後の誤った組織のレポートを修正
-- スラッシュコマンド: Bashでのallowed-toolsの権限チェックを修正
-- IDE: VSCode MacOSで⌘+Vを使用した画像貼り付けのサポートを追加
-- IDE: IDE自動接続を無効にするための`CLAUDE_CODE_AUTO_CONNECT_IDE=false`を追加
-- Claude CodeによってClaude実行されるユーザー提供のシェルコマンドをラップするための`CLAUDE_CODE_SHELL_PREFIX`を追加
+- スラッシュコマンド: Bash での allowed-tools の権限チェックを修正
+- IDE: VSCode MacOS で ⌘+V を使用した画像貼り付けのサポートを追加
+- IDE: IDE 自動接続を無効にするための`CLAUDE_CODE_AUTO_CONNECT_IDE=false`を追加
+- Claude Code によって Claude 実行されるユーザー提供のシェルコマンドをラップするための`CLAUDE_CODE_SHELL_PREFIX`を追加
 
 ## 1.0.60
 
-- 特化したタスク用のカスタムサブエージェントが作成できるようになりました！/agentsを実行して開始
+- 特化したタスク用のカスタムサブエージェントが作成できるようになりました！/agents を実行して開始
 
 ## 1.0.59
 
 - SDK: canUseTool コールバックによるツール確認サポートを追加
-- SDK: 生成されたプロセスのenvを指定できるように
-- フック: PermissionDecisionをフックに公開（"ask"を含む）
-- フック: UserPromptSubmitが高度なJSON出力でadditionalContextをサポート
-- Opusを指定した一部のMaxユーザーがSonnetにフォールバックする問題を修正
+- SDK: 生成されたプロセスの env を指定できるように
+- フック: PermissionDecision をフックに公開（"ask"を含む）
+- フック: UserPromptSubmit が高度な JSON 出力で additionalContext をサポート
+- Opus を指定した一部の Max ユーザーが Sonnet にフォールバックする問題を修正
 
 ## 1.0.58
 
-- PDFの読み取りサポートを追加
+- PDF の読み取りサポートを追加
 - MCP: 'claude mcp list'でサーバーヘルスステータス表示を改善
-- フック: フックコマンド用のCLAUDE_PROJECT_DIR env varを追加
+- フック: フックコマンド用の CLAUDE_PROJECT_DIR env var を追加
 
 ## 1.0.57
 
 - スラッシュコマンドでモデルを指定するサポートを追加
-- Claudeが許可されたツールを理解できるように権限メッセージを改善
-- 修正: ターミナルラッピングでbash出力から末尾の改行を削除
+- Claude が許可されたツールを理解できるように権限メッセージを改善
+- 修正: ターミナルラッピングで bash 出力から末尾の改行を削除
 
 ## 1.0.56
 
-- Windows: ターミナルVTモードをサポートするNode.jsバージョンでshift+tabによるモード切り替えを有効化
-- WSL IDE検出の修正
-- .awsディレクトリへのawsRefreshHelper変更が取得されない問題を修正
+- Windows: ターミナル VT モードをサポートする Node.js バージョンで shift+tab によるモード切り替えを有効化
+- WSL IDE 検出の修正
+- .aws ディレクトリへの awsRefreshHelper 変更が取得されない問題を修正
 
 ## 1.0.55
 
-- Opus 4とSonnet 4モデルの知識カットオフを明確化
-- Windows: Ctrl+Zクラッシュを修正
+- Opus 4 と Sonnet 4 モデルの知識カットオフを明確化
+- Windows: Ctrl+Z クラッシュを修正
 - SDK: エラーログキャプチャ機能を追加
-- プリントモードでシステムプロンプトを上書きする--system-prompt-fileオプションを追加
+- プリントモードでシステムプロンプトを上書きする--system-prompt-file オプションを追加
 
 ## 1.0.54
 
-- フック: UserPromptSubmitフックとフック入力に現在の作業ディレクトリを追加
-- カスタムスラッシュコマンド: フロントマターにargument-hintを追加
-- Windows: OAuthがポート45454を使用し、ブラウザURLを適切に構築
-- Windows: モード切り替えがalt + mを使用し、プランモードが適切にレンダリング
+- フック: UserPromptSubmit フックとフック入力に現在の作業ディレクトリを追加
+- カスタムスラッシュコマンド: フロントマターに argument-hint を追加
+- Windows: OAuth がポート 45454 を使用し、ブラウザ URL を適切に構築
+- Windows: モード切り替えが alt + m を使用し、プランモードが適切にレンダリング
 - シェル: ファイル関連エラーを修正するためにインメモリシェルスナップショットに切り替え
 
 ## 1.0.53
 
-- @メンションファイルの切り捨てを100行から2000行に更新
-- AWSトークン更新用のヘルパースクリプト設定を追加: awsAuthRefresh（aws sso loginのようなフォアグラウンド操作用）とawsCredentialExport（STS的レスポンスを使用したバックグラウンド操作用）
+- @メンションファイルの切り捨てを 100 行から 2000 行に更新
+- AWS トークン更新用のヘルパースクリプト設定を追加: awsAuthRefresh（aws sso login のようなフォアグラウンド操作用）と awsCredentialExport（STS 的レスポンスを使用したバックグラウンド操作用）
 
 ## 1.0.52
 
-- MCPサーバー指示のサポートを追加
+- MCP サーバー指示のサポートを追加
 
 ## 1.0.51
 
-- ネイティブWindows（Git for Windowsが必要）のサポートを追加
-- 環境変数AWS_BEARER_TOKEN_BEDROCKによるBedrock APIキーのサポートを追加
-- 設定: /doctorが無効な設定ファイルの特定と修正を支援
-- `--append-system-prompt`がインタラクティブモードでも使用可能に（--print/-pだけでなく）
-- 自動コンパクト警告のしきい値を60%から80%に引き上げ
+- ネイティブ Windows（Git for Windows が必要）のサポートを追加
+- 環境変数 AWS_BEARER_TOKEN_BEDROCK による Bedrock API キーのサポートを追加
+- 設定: /doctor が無効な設定ファイルの特定と修正を支援
+- `--append-system-prompt`がインタラクティブモードでも使用可能に（--print/-p だけでなく）
+- 自動コンパクト警告のしきい値を 60%から 80%に引き上げ
 - スペースを含むユーザーディレクトリを扱う問題をシェルスナップショットで修正
-- OTELリソースにos.type、os.version、host.arch、wsl.version（Windows Subsystem for Linuxで実行している場合）を含めるように
+- OTEL リソースに os.type、os.version、host.arch、wsl.version（Windows Subsystem for Linux で実行している場合）を含めるように
 - カスタムスラッシュコマンド: サブディレクトリのユーザーレベルコマンドを修正
 - プランモード: サブタスクから拒否されたプランが破棄される問題を修正
 
 ## 1.0.48
 
-- v1.0.45で起動時にアプリがフリーズすることがあったバグを修正
-- コマンド出力の最後の5行に基づいてBashツールに進行状況メッセージを追加
-- MCPサーバー設定で変数展開のサポートを追加
-- シェルスナップショットを/tmpから~/.claudeに移動してBashツール呼び出しの信頼性を向上
-- Claude CodeがWSLで実行される際のIDE拡張パス処理を改善
-- フック: PreCompactフックを追加
-- Vimモード: c、f/F、t/Tを追加
+- v1.0.45 で起動時にアプリがフリーズすることがあったバグを修正
+- コマンド出力の最後の 5 行に基づいて Bash ツールに進行状況メッセージを追加
+- MCP サーバー設定で変数展開のサポートを追加
+- シェルスナップショットを/tmp から~/.claude に移動して Bash ツール呼び出しの信頼性を向上
+- Claude Code が WSL で実行される際の IDE 拡張パス処理を改善
+- フック: PreCompact フックを追加
+- Vim モード: c、f/F、t/T を追加
 
 ## 1.0.45
 
 - 新しいツール入力パラメータと機能を備えた検索（Grep）ツールを再設計
-- ノートブックファイルのIDE diffを無効化し、"Timeout waiting after 1000ms"エラーを修正
+- ノートブックファイルの IDE diff を無効化し、"Timeout waiting after 1000ms"エラーを修正
 - アトミック書き込みを強制して設定ファイル破損問題を修正
-- プロンプト入力の取り消しをCtrl+\_に更新して既存のCtrl+U動作を壊さないようにし、zshの取り消しショートカットに一致
-- Stopフック: /clear後のトランスクリプトパスを修正し、ループがツール呼び出しで終了した際のトリガーを修正
-- カスタムスラッシュコマンド: サブディレクトリに基づくコマンド名の名前空間を復元。例えば、.claude/commands/frontend/component.mdは/frontend:componentになり、/componentではありません。
+- プロンプト入力の取り消しを Ctrl+\_に更新して既存の Ctrl+U 動作を壊さないようにし、zsh の取り消しショートカットに一致
+- Stop フック: /clear 後のトランスクリプトパスを修正し、ループがツール呼び出しで終了した際のトリガーを修正
+- カスタムスラッシュコマンド: サブディレクトリに基づくコマンド名の名前空間を復元。例えば、.claude/commands/frontend/component.md は/frontend:component になり、/component ではありません。
 
 ## 1.0.44
 
-- 新しい/exportコマンドで会話を共有用に素早くエクスポート
-- MCP: resource_linkツール結果がサポートされるように
-- MCP: ツールアノテーションとツールタイトルが/mcpビューに表示されるように
-- Ctrl+ZをClaude Codeのサスペンドに変更。`fg`を実行して再開。プロンプト入力の取り消しはCtrl+Uに
+- 新しい/export コマンドで会話を共有用に素早くエクスポート
+- MCP: resource_link ツール結果がサポートされるように
+- MCP: ツールアノテーションとツールタイトルが/mcp ビューに表示されるように
+- Ctrl+Z を Claude Code のサスペンドに変更。`fg`を実行して再開。プロンプト入力の取り消しは Ctrl+U に
 
 ## 1.0.43
 
 - テーマセレクターが過度に保存していたバグを修正
-- フック: EPIPEシステムエラー処理を追加
+- フック: EPIPE システムエラー処理を追加
 
 ## 1.0.42
 
@@ -652,19 +683,19 @@
 
 ## 1.0.41
 
-- フック: StopフックトリガーをStopとSubagentStopに分割
+- フック: Stop フックトリガーを Stop と SubagentStop に分割
 - フック: 各コマンドのオプションタイムアウト設定を有効化
 - フック: フック入力に"hook_event_name"を追加
-- MCPツールがツールリストに2回表示されるバグを修正
-- `tool_decision`イベントのBashツール用の新しいツールパラメータJSON
+- MCP ツールがツールリストに 2 回表示されるバグを修正
+- `tool_decision`イベントの Bash ツール用の新しいツールパラメータ JSON
 
 ## 1.0.40
 
-- `NODE_EXTRA_CA_CERTS`が設定されている場合にUNABLE_TO_GET_ISSUER_CERT_LOCALLYでAPI接続エラーが発生するバグを修正
+- `NODE_EXTRA_CA_CERTS`が設定されている場合に UNABLE_TO_GET_ISSUER_CERT_LOCALLY で API 接続エラーが発生するバグを修正
 
 ## 1.0.39
 
-- OpenTelemetryロギングに新しいActive Time指標を追加
+- OpenTelemetry ロギングに新しい Active Time 指標を追加
 
 ## 1.0.38
 
@@ -672,78 +703,78 @@
 
 ## 1.0.37
 
-- ANTHROPIC_AUTH_TOKENまたはapiKeyHelperを介して`Proxy-Authorization`ヘッダーを設定する機能を削除
+- ANTHROPIC_AUTH_TOKEN または apiKeyHelper を介して`Proxy-Authorization`ヘッダーを設定する機能を削除
 
 ## 1.0.36
 
-- Web検索が今日の日付をコンテキストに取り込むように
-- stdio MCPサーバーが終了時に適切に終了しないバグを修正
+- Web 検索が今日の日付をコンテキストに取り込むように
+- stdio MCP サーバーが終了時に適切に終了しないバグを修正
 
 ## 1.0.35
 
-- MCP OAuth Authorization Serverディスカバリのサポートを追加
+- MCP OAuth Authorization Server ディスカバリのサポートを追加
 
 ## 1.0.34
 
-- MaxListenersExceededWarningメッセージが表示されるメモリリークを修正
+- MaxListenersExceededWarning メッセージが表示されるメモリリークを修正
 
 ## 1.0.33
 
-- セッションIDサポートによるロギング機能の改善
-- プロンプト入力取り消し機能を追加（Ctrl+ZとVimの'u'コマンド）
+- セッション ID サポートによるロギング機能の改善
+- プロンプト入力取り消し機能を追加（Ctrl+Z と Vim の'u'コマンド）
 - プランモードの改善
 
 ## 1.0.32
 
-- litellm用のループバック設定を更新
-- ログイン選択画面をバイパスするためのforceLoginMethod設定を追加
+- litellm 用のループバック設定を更新
+- ログイン選択画面をバイパスするための forceLoginMethod 設定を追加
 
 ## 1.0.31
 
-- ファイルに無効なJSONが含まれている場合に~/.claude.jsonがリセットされるバグを修正
+- ファイルに無効な JSON が含まれている場合に~/.claude.json がリセットされるバグを修正
 
 ## 1.0.30
 
-- カスタムスラッシュコマンド: bash出力の実行、@メンションファイル、思考キーワードで思考を有効化
+- カスタムスラッシュコマンド: bash 出力の実行、@メンションファイル、思考キーワードで思考を有効化
 - ファイル名マッチングによるファイルパス自動補完を改善
-- Ctrl-rモードでタイムスタンプを追加し、Ctrl-c処理を修正
-- パイプとselectを使用した複雑なフィルター用のjq regexサポートを強化
+- Ctrl-r モードでタイムスタンプを追加し、Ctrl-c 処理を修正
+- パイプと select を使用した複雑なフィルター用の jq regex サポートを強化
 
 ## 1.0.29
 
-- カーソルナビゲーションとレンダリングでCJK文字サポートを改善
+- カーソルナビゲーションとレンダリングで CJK 文字サポートを改善
 
 ## 1.0.28
 
 - スラッシュコマンド: 履歴ナビゲーション中のセレクター表示を修正
-- APIサイズ制限エラーを防ぐためにアップロード前に画像をリサイズ
-- 設定ディレクトリにXDG_CONFIG_HOMEサポートを追加
+- API サイズ制限エラーを防ぐためにアップロード前に画像をリサイズ
+- 設定ディレクトリに XDG_CONFIG_HOME サポートを追加
 - メモリ使用量のパフォーマンス最適化
-- OpenTelemetryロギングに新しい属性（terminal.type、language）
+- OpenTelemetry ロギングに新しい属性（terminal.type、language）
 
 ## 1.0.27
 
-- ストリーマブルHTTP MCPサーバーがサポートされるように
-- リモートMCPサーバー（SSEとHTTP）がOAuthをサポート
-- MCPリソースが@メンション可能に
-- Claude Code内で会話を切り替える/resumeスラッシュコマンド
+- ストリーマブル HTTP MCP サーバーがサポートされるように
+- リモート MCP サーバー（SSE と HTTP）が OAuth をサポート
+- MCP リソースが@メンション可能に
+- Claude Code 内で会話を切り替える/resume スラッシュコマンド
 
 ## 1.0.25
 
 - スラッシュコマンド: "project"と"user"プレフィックスを説明に移動
 - スラッシュコマンド: コマンド検出の信頼性を改善
-- Ghosttyのサポートを改善
-- Web検索の信頼性を改善
+- Ghostty のサポートを改善
+- Web 検索の信頼性を改善
 
 ## 1.0.24
 
-- /mcpの出力を改善
+- /mcp の出力を改善
 - 設定配列が統合される代わりに上書きされるバグを修正
 
 ## 1.0.23
 
-- TypeScript SDKをリリース: @anthropic-ai/claude-codeをインポートして開始
-- Python SDKをリリース: pip install claude-code-sdkで開始
+- TypeScript SDK をリリース: @anthropic-ai/claude-code をインポートして開始
+- Python SDK をリリース: pip install claude-code-sdk で開始
 
 ## 1.0.22
 
@@ -752,158 +783,159 @@
 ## 1.0.21
 
 - タブベースのインデントを使用したファイルの編集を改善
-- tool_useとマッチングするtool_resultがないエラーの修正
-- Claude Codeを終了した後にstdio MCPサーバープロセスが残るバグを修正
+- tool_use とマッチングする tool_result がないエラーの修正
+- Claude Code を終了した後に stdio MCP サーバープロセスが残るバグを修正
 
 ## 1.0.18
 
-- 追加の作業ディレクトリを指定するための--add-dir CLI引数を追加
-- -pフラグなしでストリーミング入力サポートを追加
+- 追加の作業ディレクトリを指定するための--add-dir CLI 引数を追加
+- -p フラグなしでストリーミング入力サポートを追加
 - 起動パフォーマンスとセッションストレージパフォーマンスを改善
-- bashコマンドの作業ディレクトリを固定するCLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR環境変数を追加
-- 詳細なMCPサーバーツール表示を追加（/mcp）
-- MCP認証と権限の改善
-- 切断時のMCP SSE接続の自動再接続を追加
+- bash コマンドの作業ディレクトリを固定する CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR 環境変数を追加
+- 詳細な MCP サーバーツール表示を追加（/mcp）
+- MCP 認証と権限の改善
+- 切断時の MCP SSE 接続の自動再接続を追加
 - ダイアログが表示された際に貼り付けられたコンテンツが失われる問題を修正
 
 ## 1.0.17
 
-- -pモードでサブタスクからのメッセージを出力するように（parent_tool_use_idプロパティを探す）
-- VS Code diffツールが複数回素早く呼び出された際のクラッシュを修正
-- MCPサーバーリストUIの改善
-- Claude Codeプロセスタイトルを"node"ではなく"claude"を表示するように更新
+- -p モードでサブタスクからのメッセージを出力するように（parent_tool_use_id プロパティを探す）
+- VS Code diff ツールが複数回素早く呼び出された際のクラッシュを修正
+- MCP サーバーリスト UI の改善
+- Claude Code プロセスタイトルを"node"ではなく"claude"を表示するように更新
 
 ## 1.0.11
 
-- Claude CodeがClaude Proサブスクリプションでも使用可能に
-- よりスムーズなClaude Maxプランへの切り替えのための/upgradeを追加
-- APIキーとBedrock/Vertex/外部認証トークンからの認証のUIを改善
+- Claude Code が Claude Pro サブスクリプションでも使用可能に
+- よりスムーズな Claude Max プランへの切り替えのための/upgrade を追加
+- API キーと Bedrock/Vertex/外部認証トークンからの認証の UI を改善
 - シェル設定のエラー処理を改善
-- コンパクト時のtodoリスト処理を改善
+- コンパクト時の todo リスト処理を改善
 
 ## 1.0.10
 
-- markdownテーブルサポートを追加
+- markdown テーブルサポートを追加
 - ストリーミングパフォーマンスを改善
 
 ## 1.0.8
 
-- CLOUD_ML_REGION使用時のVertex AIリージョンフォールバックを修正
-- デフォルトのotelインターバルを1秒から5秒に増加
-- MCP_TIMEOUTとMCP_TOOL_TIMEOUTが尊重されないエッジケースを修正
+- CLOUD_ML_REGION 使用時の Vertex AI リージョンフォールバックを修正
+- デフォルトの otel インターバルを 1 秒から 5 秒に増加
+- MCP_TIMEOUT と MCP_TOOL_TIMEOUT が尊重されないエッジケースを修正
 - 検索ツールが不必要に権限を要求する回帰を修正
 - 非英語言語での思考トリガーのサポートを追加
-- コンパクト化UIを改善
+- コンパクト化 UI を改善
 
 ## 1.0.7
 
-- /allowed-toolsを/permissionsにリネーム
-- allowedToolsとignorePatternsを.claude.jsonからsettings.jsonに移行
-- settings.jsonの編集を優先してclaude configコマンドを非推奨に
-- --printモードで--dangerously-skip-permissionsが時々動作しないバグを修正
-- /install-github-appのエラー処理を改善
-- バグ修正、UI改善、ツール信頼性の改善
+- /allowed-tools を/permissions にリネーム
+- allowedTools と ignorePatterns を.claude.json から settings.json に移行
+- settings.json の編集を優先して claude config コマンドを非推奨に
+- --print モードで--dangerously-skip-permissions が時々動作しないバグを修正
+- /install-github-app のエラー処理を改善
+- バグ修正、UI 改善、ツール信頼性の改善
 
 ## 1.0.6
 
 - タブインデントファイルの編集信頼性を改善
-- すべての場所でCLAUDE_CONFIG_DIRを尊重
+- すべての場所で CLAUDE_CONFIG_DIR を尊重
 - 不要なツール権限プロンプトを削減
-- @fileタイプアヘッドでシンボリックリンクのサポートを追加
-- バグ修正、UI改善、ツール信頼性の改善
+- @file タイプアヘッドでシンボリックリンクのサポートを追加
+- バグ修正、UI 改善、ツール信頼性の改善
 
 ## 1.0.4
 
-- MCPツールエラーが正しく解析されないバグを修正
+- MCP ツールエラーが正しく解析されないバグを修正
 
 ## 1.0.1
 
 - ユーザーがインターリーブ思考をオプトアウトするオプションを提供するために`DISABLE_INTERLEAVED_THINKING`を追加
-- プロバイダー固有の名前を表示するモデル参照を改善（BedrockはSonnet 3.7、ConsoleはSonnet 4）
-- ドキュメントリンクとOAuthプロセスの説明を更新
+- プロバイダー固有の名前を表示するモデル参照を改善（Bedrock は Sonnet 3.7、Console は Sonnet 4）
+- ドキュメントリンクと OAuth プロセスの説明を更新
 
 ## 1.0.0
 
-- Claude Codeが一般提供開始
-- Sonnet 4とOpus 4モデルを導入
+- Claude Code が一般提供開始
+- Sonnet 4 と Opus 4 モデルを導入
 
 ## 0.2.125
 
-- 破壊的変更: `ANTHROPIC_MODEL`または`ANTHROPIC_SMALL_FAST_MODEL`に渡されるBedrock ARNには、エスケープされたスラッシュを含めないように（`%2F`の代わりに`/`を指定）
+- 破壊的変更: `ANTHROPIC_MODEL`または`ANTHROPIC_SMALL_FAST_MODEL`に渡される Bedrock ARN には、エスケープされたスラッシュを含めないように（`%2F`の代わりに`/`を指定）
 - すべてのリクエストをログに記録するために`DEBUG=true`の代わりに`ANTHROPIC_LOG=debug`を導入
 
 ## 0.2.117
 
-- 破壊的変更: --print JSON出力が新しいメタデータフィールドを導入する際の前方互換性のために、ネストされたメッセージオブジェクトを返すように
-- settings.cleanupPeriodDaysを導入
-- CLAUDE_CODE_API_KEY_HELPER_TTL_MS env varを導入
-- --debugモードを導入
+- 破壊的変更: --print JSON 出力が新しいメタデータフィールドを導入する際の前方互換性のために、ネストされたメッセージオブジェクトを返すように
+- settings.cleanupPeriodDays を導入
+- CLAUDE_CODE_API_KEY_HELPER_TTL_MS env var を導入
+- --debug モードを導入
 
 ## 0.2.108
 
-- Claudeが作業中にリアルタイムでステアリングするためにメッセージを送信可能に
-- BASH_DEFAULT_TIMEOUT_MSとBASH_MAX_TIMEOUT_MS env varsを導入
-- -pモードで思考が動作しないバグを修正
-- /costレポートの回帰を修正
-- 他のMCPコマンドを優先してMCPウィザードインターフェースを非推奨に
+- Claude が作業中にリアルタイムでステアリングするためにメッセージを送信可能に
+- BASH_DEFAULT_TIMEOUT_MS と BASH_MAX_TIMEOUT_MS env vars を導入
+- -p モードで思考が動作しないバグを修正
+- /cost レポートの回帰を修正
+- 他の MCP コマンドを優先して MCP ウィザードインターフェースを非推奨に
 - その他多くのバグ修正と改善
 
 ## 0.2.107
 
-- CLAUDE.mdファイルが他のファイルをインポート可能に。./CLAUDE.mdに@path/to/file.mdを追加して起動時に追加ファイルを読み込み
+- CLAUDE.md ファイルが他のファイルをインポート可能に。./CLAUDE.md に@path/to/file.md を追加して起動時に追加ファイルを読み込み
 
 ## 0.2.106
 
-- MCP SSEサーバー設定でカスタムヘッダーを指定可能に
-- MCP権限プロンプトが常に正しく表示されないバグを修正
+- MCP SSE サーバー設定でカスタムヘッダーを指定可能に
+- MCP 権限プロンプトが常に正しく表示されないバグを修正
 
 ## 0.2.105
 
-- Claudeがウェブを検索できるように
-- システムとアカウントステータスを/statusに移動
-- Vimの単語移動キーバインディングを追加
-- 起動、todoツール、ファイル編集のレイテンシを改善
+- Claude がウェブを検索できるように
+- システムとアカウントステータスを/status に移動
+- Vim の単語移動キーバインディングを追加
+- 起動、todo ツール、ファイル編集のレイテンシを改善
 
 ## 0.2.102
 
 - 思考トリガーの信頼性を改善
 - 画像とフォルダの@メンションの信頼性を改善
-- 1つのプロンプトに複数の大きなチャンクを貼り付け可能に
+- 1 つのプロンプトに複数の大きなチャンクを貼り付け可能に
 
 ## 0.2.100
 
 - スタックオーバーフローエラーによるクラッシュを修正
-- dbストレージをオプションに。dbサポートがない場合は--continueと--resumeを無効化
+- db ストレージをオプションに。db サポートがない場合は--continue と--resume を無効化
+
 ## 0.2.98
 
-- 自動コンパクトが2回実行される問題を修正
+- 自動コンパクトが 2 回実行される問題を修正
 
 ## 0.2.96
 
-- Claude CodeがClaude Maxサブスクリプションでも使用可能に（https://claude.ai/upgrade）
+- Claude Code が Claude Max サブスクリプションでも使用可能に（https://claude.ai/upgrade）
 
 ## 0.2.93
 
 - "claude --continue"と"claude --resume"で中断した場所から会話を再開
-- Claudeがタスクを追跡して整理するためのTodoリストにアクセス可能に
+- Claude がタスクを追跡して整理するための Todo リストにアクセス可能に
 
 ## 0.2.82
 
-- --disallowedToolsのサポートを追加
-- 一貫性のためにツールをリネーム: LSTool -> LS、View -> Readなど
+- --disallowedTools のサポートを追加
+- 一貫性のためにツールをリネーム: LSTool -> LS、View -> Read など
 
 ## 0.2.75
 
-- Claudeが作業中にEnterキーを押して追加メッセージをキューに入れる
+- Claude が作業中に Enter キーを押して追加メッセージをキューに入れる
 - プロンプトに画像ファイルを直接ドラッグまたはコピー/貼り付け
 - ファイルを@メンションしてコンテキストに直接追加
-- `claude --mcp-config <path-to-file>`でワンオフMCPサーバーを実行
+- `claude --mcp-config <path-to-file>`でワンオフ MCP サーバーを実行
 - ファイル名自動補完のパフォーマンスを改善
 
 ## 0.2.74
 
-- 動的に生成されたAPIキーの更新（apiKeyHelper経由）のサポートを追加、5分TTL
-- TaskツールがWriteとBashコマンドを実行可能に
+- 動的に生成された API キーの更新（apiKeyHelper 経由）のサポートを追加、5 分 TTL
+- Task ツールが Write と Bash コマンドを実行可能に
 
 ## 0.2.72
 
@@ -911,110 +943,110 @@
 
 ## 0.2.70
 
-- curlなどのネットワークコマンドがClaudeで使用可能に
-- Claudeが複数のWebクエリを並列実行可能に
-- 自動承認モードでESCキーを1回押すだけでClaudeを即座に中断
+- curl などのネットワークコマンドが Claude で使用可能に
+- Claude が複数の Web クエリを並列実行可能に
+- 自動承認モードで ESC キーを 1 回押すだけで Claude を即座に中断
 
 ## 0.2.69
 
-- 改善されたSelectコンポーネントの動作でUIグリッチを修正
+- 改善された Select コンポーネントの動作で UI グリッチを修正
 - より良いテキスト切り捨てロジックでターミナル出力表示を強化
 
 ## 0.2.67
 
-- 共有プロジェクト権限ルールを.claude/settings.jsonに保存可能
+- 共有プロジェクト権限ルールを.claude/settings.json に保存可能
 
 ## 0.2.66
 
-- プリントモード（-p）が--output-format=stream-jsonを介してストリーミング出力をサポート
-- 貼り付けが予期せずメモリまたはbashモードをトリガーする問題を修正
+- プリントモード（-p）が--output-format=stream-json を介してストリーミング出力をサポート
+- 貼り付けが予期せずメモリまたは bash モードをトリガーする問題を修正
 
 ## 0.2.63
 
-- MCPツールが2回読み込まれてツール呼び出しエラーが発生する問題を修正
+- MCP ツールが 2 回読み込まれてツール呼び出しエラーが発生する問題を修正
 
 ## 0.2.61
 
-- vimスタイルのキー（j/k）またはbash/emacsショートカット（Ctrl+n/p）でメニューをナビゲートして高速インタラクション
+- vim スタイルのキー（j/k）または bash/emacs ショートカット（Ctrl+n/p）でメニューをナビゲートして高速インタラクション
 - より信頼性の高いクリップボード貼り付け機能のための画像検出を強化
-- ESCキーが会話履歴セレクターをクラッシュさせる可能性がある問題を修正
+- ESC キーが会話履歴セレクターをクラッシュさせる可能性がある問題を修正
 
 ## 0.2.59
 
 - プロンプトに画像を直接コピー+貼り付け
-- bashとfetchツールの進行状況インジケーターを改善
+- bash と fetch ツールの進行状況インジケーターを改善
 - 非インタラクティブモード（-p）のバグ修正
 
 ## 0.2.54
 
-- '#'でメッセージを開始してMemoryに素早く追加
-- ctrl+rを押して長いツール結果の完全な出力を表示
-- MCP SSEトランスポートのサポートを追加
+- '#'でメッセージを開始して Memory に素早く追加
+- ctrl+r を押して長いツール結果の完全な出力を表示
+- MCP SSE トランスポートのサポートを追加
 
 ## 0.2.53
 
-- 新しいWebフェッチツールでClaudeが貼り付けられたURLを表示可能に
-- JPEG検出のバグを修正
+- 新しい Web フェッチツールで Claude が貼り付けられた URL を表示可能に
+- JPEG 検出のバグを修正
 
 ## 0.2.50
 
-- 新しいMCP"project"スコープで.mcp.jsonファイルにMCPサーバーを追加してリポジトリにコミット可能に
+- 新しい MCP"project"スコープで.mcp.json ファイルに MCP サーバーを追加してリポジトリにコミット可能に
 
 ## 0.2.49
 
-- 以前のMCPサーバースコープがリネーム: 以前の"project"スコープは"local"に、"global"スコープは"user"に
+- 以前の MCP サーバースコープがリネーム: 以前の"project"スコープは"local"に、"global"スコープは"user"に
 
 ## 0.2.47
 
-- Tabキーを押してファイルとフォルダー名を自動補完
-- Shift + Tabキーを押してファイル編集の自動承認を切り替え
-- 無限の会話長のための自動会話コンパクト化（/configで切り替え）
+- Tab キーを押してファイルとフォルダー名を自動補完
+- Shift + Tab キーを押してファイル編集の自動承認を切り替え
+- 無限の会話長のための自動会話コンパクト化（/config で切り替え）
 
 ## 0.2.44
 
-- 思考モードでClaudeにプランを作成してもらう: 'think'、'think harder'、または'ultrathink'と言うだけ
+- 思考モードで Claude にプランを作成してもらう: 'think'、'think harder'、または'ultrathink'と言うだけ
 
 ## 0.2.41
 
-- MCPサーバー起動タイムアウトをMCP_TIMEOUT環境変数で設定可能に
-- MCPサーバー起動がアプリの起動をブロックしないように
+- MCP サーバー起動タイムアウトを MCP_TIMEOUT 環境変数で設定可能に
+- MCP サーバー起動がアプリの起動をブロックしないように
 
 ## 0.2.37
 
-- 新しい/release-notesコマンドでいつでもリリースノートを表示
+- 新しい/release-notes コマンドでいつでもリリースノートを表示
 - `claude config add/remove`コマンドがカンマまたはスペースで区切られた複数の値を受け入れるように
 
 ## 0.2.36
 
-- `claude mcp add-from-claude-desktop`でClaude DesktopからMCPサーバーをインポート
-- `claude mcp add-json <n> <json>`でJSON文字列としてMCPサーバーを追加
+- `claude mcp add-from-claude-desktop`で Claude Desktop から MCP サーバーをインポート
+- `claude mcp add-json <n> <json>`で JSON 文字列として MCP サーバーを追加
 
 ## 0.2.34
 
-- テキスト入力用のVimバインディング - /vimまたは/configで有効化
+- テキスト入力用の Vim バインディング - /vim または/config で有効化
 
 ## 0.2.32
 
-- インタラクティブMCPセットアップウィザード: "claude mcp add"を実行してステップバイステップのインターフェースでMCPサーバーを追加
-- PersistentShellの一部問題を修正
+- インタラクティブ MCP セットアップウィザード: "claude mcp add"を実行してステップバイステップのインターフェースで MCP サーバーを追加
+- PersistentShell の一部問題を修正
 
 ## 0.2.31
 
-- カスタムスラッシュコマンド: .claude/commands/ディレクトリのMarkdownファイルがカスタムスラッシュコマンドとして表示され、会話にプロンプトを挿入
-- MCPデバッグモード: --mcp-debugフラグで実行してMCPサーバーエラーに関する詳細情報を取得
+- カスタムスラッシュコマンド: .claude/commands/ディレクトリの Markdown ファイルがカスタムスラッシュコマンドとして表示され、会話にプロンプトを挿入
+- MCP デバッグモード: --mcp-debug フラグで実行して MCP サーバーエラーに関する詳細情報を取得
 
 ## 0.2.30
 
-- より良いターミナル互換性のためのANSIカラーテーマを追加
+- より良いターミナル互換性のための ANSI カラーテーマを追加
 - スラッシュコマンド引数が適切に送信されない問題を修正
-- （Macのみ）APIキーがmacOS Keychainに保存されるように
+- （Mac のみ）API キーが macOS Keychain に保存されるように
 
 ## 0.2.26
 
-- ツール権限を管理するための新しい/approved-toolsコマンド
-- 改善されたコード可読性のための単語レベルdiff表示
+- ツール権限を管理するための新しい/approved-tools コマンド
+- 改善されたコード可読性のための単語レベル diff 表示
 - スラッシュコマンドのファジーマッチング
 
 ## 0.2.21
 
-- /commandsのファジーマッチング
+- /commands のファジーマッチング
