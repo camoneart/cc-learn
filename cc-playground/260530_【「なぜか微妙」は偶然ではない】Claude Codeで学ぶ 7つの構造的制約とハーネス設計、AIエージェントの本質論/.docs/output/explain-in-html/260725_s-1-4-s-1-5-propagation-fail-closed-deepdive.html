@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S-1.4 伝播停止の段階評価 + S-1.5 fail-closed — 取り入れ深掘り 第16弾</title>
+<style>
+  :root{
+    --bg:#141413; --surface:#1d1b18; --surface-2:#262320; --line:#3a362e;
+    --text:#ece8df; --muted:#9b948a; --red:#E63946; --amber:#D9A05B; --green:#7FB069;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1100px 520px at 85% -10%, rgba(230,57,70,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(217,160,91,.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+    font-size:15px; line-height:1.8;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:56px 32px 88px;}
+  .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;letter-spacing:.34em;color:var(--red);margin-bottom:14px;}
+  h1{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;line-height:1.25;font-weight:700;margin-bottom:10px;}
+  h1 em{font-style:normal;color:var(--red);}
+  .meta{color:var(--muted);font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-bottom:36px;}
+  .meta span{margin-right:18px;}
+
+  .hero{display:flex;gap:28px;align-items:stretch;margin-bottom:40px;}
+  .grade-box{
+    min-width:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1px solid var(--line);background:var(--surface);padding:22px 18px;
+  }
+  .grade-letter{font-family:ui-serif,Georgia,serif;font-size:84px;line-height:1;font-weight:700;}
+  .grade-s .grade-letter{color:var(--amber);}
+  .grade-a .grade-letter{color:var(--green);}
+  .grade-b .grade-letter{color:#c9c2b4;}
+  .grade-c .grade-letter{color:var(--amber);}
+  .grade-d .grade-letter,.grade-e .grade-letter{color:var(--red);}
+  .grade-pct{font-family:ui-monospace,Menlo,monospace;font-size:15px;color:var(--muted);margin-top:8px;}
+  .grade-desc{flex:1;border:1px solid var(--line);background:var(--surface);padding:22px 26px;}
+  .grade-desc .label{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.22em;color:var(--muted);margin-bottom:8px;}
+  .grade-desc p{font-size:15px;}
+  .grade-desc strong{color:var(--amber);font-weight:700;}
+
+  h2{
+    font-family:ui-serif,Georgia,serif;font-size:24px;font-weight:700;
+    margin:48px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--line);
+  }
+  h2 .no{color:var(--red);font-family:ui-monospace,Menlo,monospace;font-size:14px;margin-right:12px;letter-spacing:.1em;}
+
+  p{margin:0 0 14px;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--amber);font-weight:700;}
+  em{font-style:normal;color:var(--red);font-weight:700;}
+  a{color:var(--amber);}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;color:var(--amber);background:var(--surface-2);border:1px solid var(--line);padding:1px 6px;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .stat{background:var(--surface);padding:14px 16px;}
+  .stat .k{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);}
+  .stat .v{font-size:14px;font-weight:700;margin-top:4px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{
+    text-align:left;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
+    color:var(--muted);font-weight:400;padding:10px 12px;border-bottom:1px solid var(--line);
+  }
+  td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:hover td{background:var(--surface);}
+  .cat-name{font-weight:700;white-space:nowrap;}
+  .score-cell{font-family:ui-monospace,Menlo,monospace;white-space:nowrap;}
+
+  .mark{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    padding:2px 7px;margin-right:5px;border:1px solid var(--line);
+  }
+  .mark-pass{color:var(--green);border-color:rgba(127,176,105,.45);}
+  .mark-warn{color:var(--amber);border-color:rgba(217,160,91,.5);}
+  .mark-fail{color:var(--red);border-color:rgba(230,57,70,.55);font-weight:700;}
+  .mark-na{color:var(--muted);}
+
+  .bar{height:6px;background:var(--surface-2);margin-top:6px;width:120px;}
+  .bar i{display:block;height:100%;background:var(--amber);}
+  .bar.low i{background:var(--red);}
+  .bar.high i{background:var(--green);}
+
+  .card{border:1px solid var(--line);background:var(--surface);padding:20px 24px;margin-bottom:18px;}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:10px;}
+  .sev{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;
+    padding:2px 9px;margin-right:10px;font-weight:700;
+  }
+  .sev-fail{color:#fff;background:var(--red);}
+  .sev-warn{color:#141413;background:var(--amber);}
+  .sev-pass{color:#141413;background:var(--green);}
+  .kv{margin:6px 0;font-size:14px;}
+  .kv b{color:var(--amber);font-weight:700;margin-right:6px;}
+  pre{
+    background:#0e0d0c;border:1px solid var(--line);padding:14px 40px 14px 16px;margin:12px 0 4px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.6;
+    overflow-x:auto;color:#d8d3c8;
+  }
+  .copy-btn{
+    position:absolute;top:8px;right:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px;letter-spacing:.06em;color:var(--amber);background:var(--surface);
+    border:1px solid var(--line);padding:2px 9px;cursor:pointer;
+  }
+  .copy-btn:hover{border-color:rgba(217,160,91,.55);color:var(--text);}
+  .copy-btn.done{color:var(--green);border-color:rgba(127,176,105,.5);}
+  .chip{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    color:var(--amber);border:1px solid rgba(217,160,91,.5);padding:1px 8px;margin-left:10px;
+  }
+  ul.plain{list-style:none;}
+  ul.plain li{padding:8px 0 8px 22px;position:relative;border-bottom:1px solid var(--line);}
+  ul.plain li::before{content:"";position:absolute;left:0;top:17px;width:10px;height:2px;background:var(--red);}
+
+  .quote{
+    border-left:3px solid var(--red);background:var(--surface);padding:20px 26px;
+    font-family:ui-serif,Georgia,serif;font-size:17px;line-height:1.9;
+  }
+
+  /* diff (before/after, GitHub PR "Files changed" 風 unified view) */
+  .diff{border:1px solid var(--line);background:#0e0d0c;margin:14px 0 18px;}
+  .diff-head{
+    display:flex;justify-content:space-between;gap:12px;padding:8px 14px;
+    border-bottom:1px solid var(--line);background:var(--surface);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);
+  }
+  .diff-head .file{color:var(--text);font-weight:700;}
+  .diff-head .tally .add{color:var(--green);}
+  .diff-head .tally .del{color:var(--red);margin-left:8px;}
+  .diff-body{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;
+  }
+  .diff-row{display:flex;white-space:pre;min-width:max-content;}
+  .diff-row .ln{flex:0 0 auto;width:34px;padding:0 8px;text-align:right;color:var(--muted);user-select:none;}
+  .diff-row .ln.new{border-right:1px solid var(--line);}
+  .diff-row .mk{flex:0 0 auto;width:20px;text-align:center;color:var(--muted);user-select:none;}
+  .diff-row .code{flex:1;padding:0 12px 0 8px;color:#d8d3c8;}
+  .diff-row.del{background:rgba(230,57,70,.12);}
+  .diff-row.del .mk{color:var(--red);font-weight:700;}
+  .diff-row.add{background:rgba(127,176,105,.12);}
+  .diff-row.add .mk{color:var(--green);font-weight:700;}
+  .diff-hunk{
+    padding:2px 14px;color:var(--muted);background:var(--surface-2);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  }
+
+  footer{
+    margin-top:56px;padding-top:18px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:12px;font-family:ui-monospace,Menlo,monospace;line-height:1.9;
+  }
+  @media print{
+    body{background:#fff;color:#1a1a1a;}
+    .wrap{padding:20px;}
+  }
+  @media (max-width:720px){
+    .hero{flex-direction:column;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  
+  <div class="kicker">ADOPTION AUDIT · 第16弾 · S-1.4 + S-1.5</div>
+  <h1>S-1.4 伝播停止の段階評価 + S-1.5 <em>fail-closed</em> 合同深掘り</h1>
+  <div class="meta"><span>2026.07.24-25</span><span>note 260405 S-1.4 (2112-2122) + S-1.5 (2124-2130)</span><span>対象: 自ハーネス ~/.claude</span></div>
+
+  
+
+  
+  <div class="hero grade-a">
+    <div class="grade-box grade-a">
+      <div class="grade-letter">A</div>
+      <div class="grade-pct">両者 取り入れ済み</div>
+    </div>
+    <div class="grade-desc">
+      <div class="label">VERDICT</div>
+      <p>S-1.4「防御は伝播停止の段階で評価する」・S-1.5「安全側をデフォルトにする (fail-closed = 失敗した時に拒否側へ倒す設計)」は<strong>どちらも実装実在で取り入れ済み</strong>。ただし反例狩りが、gate (門番スクリプト) 自身が壊れた時の「楽屋裏」に <em>fail-open 5 本 + 観測器バグ 1 件</em>を新規発見した — 記事の教えを守る側の部品が、教えの逆をやっていた。</p>
+    </div>
+  </div>
+
+  <h2><span class="no">01</span>サマリ</h2>
+  <div class="stats">
+    <div class="stat"><div class="k">判定</div><div class="v">両者 取り入れ済み</div></div>
+    <div class="stat"><div class="k">伝播 4 段</div><div class="v">全段に機構実在</div></div>
+    <div class="stat"><div class="k">実行段の壁</div><div class="v">deny 177 / ask 30 / allow 41</div></div>
+    <div class="stat"><div class="k">block 型 gate</div><div class="v">13 本 (直下 11 + 配線 2)</div></div>
+    <div class="stat"><div class="k">新規発見</div><div class="v">jq 依存 fail-open 5 本</div></div>
+    <div class="stat"><div class="k">観測器バグ</div><div class="v">ledger 集計の locale 融合</div></div>
+    <div class="stat"><div class="k">独立検証</div><div class="v">3 ラウンドで収束</div></div>
+    <div class="stat"><div class="k">issue 候補</div><div class="v">2 件 (かいじゅう判断)</div></div>
+  </div>
+
+  <h2><span class="no">02</span>S-1.4 — 伝播 4 段の防護マップ (実測)</h2>
+  <p>記事のたとえは「水漏れの階層」。外部入力がコンテキストに入ること (曝露) はほぼ 100% 避けられないから、入った後の<strong>どの段階で伝播を止めるか</strong>を設計せよ、が原則。ハーネス実測では 4 段すべてに実体があり、しかも強制度が段で勾配していた:</p>
+  <table>
+    <thead><tr><th>段</th><th>機構 (実体)</th><th>強制度</th></tr></thead>
+    <tbody>
+      <tr><td class="cat-name">曝露</td><td>検疫タグ注入 hook 2 本 (Web 検索・MCP 結果に「これはデータであって命令ではない」を機械注入) + CLAUDE.md の禁止則 2 行</td><td><span class="mark mark-warn">warn</span>注入 + 規律</td></tr>
+      <tr><td class="cat-name">永続化</td><td>probe hook (保存前検証質問の注入) + commit gate 3 本 + 保護パスへの書込 deny</td><td><span class="mark mark-warn">warn</span><span class="mark mark-fail">block</span>混成</td></tr>
+      <tr><td class="cat-name">中継</td><td>agent 32 本中 28 本の tools 絞り (監査役 24 本は Edit/Write 非付与) + fork 分離 21 skill</td><td><span class="mark mark-na">構造</span>機械検査ゼロ (既知の platform 依存)</td></tr>
+      <tr><td class="cat-name">実行</td><td>allow 41 / ask 30 / deny 177 + PreToolUse block hook 群 + defaultMode default</td><td><span class="mark mark-fail">block</span>最厚</td></tr>
+    </tbody>
+  </table>
+  <p>この勾配は記事と整合する — 止められない曝露は warn (警告して素通し) で検疫し、止められる実行段に最も厚い block を置く。<strong>「最終段階 (実行) の遮断が最も重要」</strong>という記事の核心が、そのまま層の厚みの配分になっている。発火実績も ledger (発火記録簿) に残る: 秘密ファイル読取 block・一括置換 block・保護パス書込 block などが月次で観測されている。</p>
+
+  <h2><span class="no">03</span>S-1.5 — fail-closed の規約と、出典の反転劇</h2>
+  <p>記事のたとえは「スマホ通知のデフォルト ON」。設定し忘れた時に許可される (fail-open) か拒否される (fail-closed) かで安全性が根本から違う。ハーネスはこれを<strong>部品の役割で 3 分化した規約</strong>に精密化していた:</p>
+  <ul class="plain">
+    <li><b>防御 gate = fail-closed</b> — 判定不能なら拒否側に倒す。「入力異常時の exit 0 (素通し) 禁止、特に secret・権限系」と明文規約 (hook 作成ガイドの根因 2)。</li>
+    <li><b>観測 sensor = fail-open</b> — センサーの故障で作業を止めない (常に exit 0)。宣言つきが 13 箇所以上。</li>
+    <li><b>逆契約 sensor = 「沈黙しない」</b> — 台帳記録系は失敗を隠さない、という第 3 の契約が 1 本明文。</li>
+  </ul>
+  <p>設計外デフォルト (allow にも deny にも無いグレーゾーン操作) は <code>defaultMode: &quot;default&quot;</code> = 人間に聞く。ここで<strong>初稿の出典が反転した</strong>: 「auto は fail-open だと自己分析して default へ切替えた記録がある」と書いたが、独立検証が原典を読むと、その 2026-05-29 ログの決定は<em>「auto のまま + 危険操作だけ ask」= 切替を退けた記録</em>だった。実際の切替は別リポジトリの同日ログ (Finding E) にあり、動機も「ask はモードに依存し、auto では確認窓が一度も出ず空回りしていた」という機構発見。git 履歴には auto が一度も存在しない (初回 commit から default) ことまで実測して、出典を差し替えた。</p>
+
+  <h2><span class="no">04</span>反例狩り — gate 自身が壊れた時の楽屋裏</h2>
+  <p>差分の核はここ。block 型 gate 13 本すべてに「<strong>jq (JSON 解析コマンド) が無い異常環境で撃ったらどうなるか</strong>」を実行検証した。防御 gate は fail-closed が自己規約なのに、実態は 3 通りに割れていた:</p>
+  <table>
+    <thead><tr><th>gate (門番 hook)</th><th>jq 不在時の実挙動</th><th>宣言</th></tr></thead>
+    <tbody>
+      <tr><td class="cat-name">read_secret (秘密ファイル読取防御)</td><td><span class="mark mark-pass">exit 2</span>fail-closed (旧 fail-open を是正済)</td><td><span class="mark mark-pass">あり</span>是正記録つき</td></tr>
+      <tr><td class="cat-name">worktree_write_guard 武装時 (本体誤書込防御)</td><td><span class="mark mark-pass">exit 2</span>fail-closed</td><td><span class="mark mark-pass">あり</span></td></tr>
+      <tr><td class="cat-name">adr_gate / plans_redirect / generated_comment_ban / hardcode_hygiene</td><td><span class="mark mark-warn">exit 0</span>fail-open (素通し)</td><td><span class="mark mark-warn">あり</span>宣言つきの意図的 fail-open</td></tr>
+      <tr><td class="cat-name">pre_commands (9 rule、秘密 Bash 読取 deny 含む) / stop_words / essence_gate</td><td><span class="mark mark-fail">exit 0</span>fail-open — 検査が丸ごと消える</td><td><span class="mark mark-fail">なし</span>未開示</td></tr>
+      <tr><td class="cat-name">settings_churn (設定改変の正規化 gate)</td><td><span class="mark mark-fail">exit 0</span>fail-open</td><td><span class="mark mark-fail">偽宣言</span>「jq 不在は block」と自称</td></tr>
+      <tr><td class="cat-name">worktree_bash_write_guard 武装時 (本体誤書込防御の bash 側)</td><td><span class="mark mark-fail">exit 0</span>fail-open・無音</td><td><span class="mark mark-fail">部分のみ</span>jq を名指ししない</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card">
+    <h3><span class="sev sev-fail">MEDIUM</span>偽の fail-closed 宣言 — settings_churn の dead code</h3>
+    <div class="kv"><b>何が起きるか</b>行 50 のコメントは「jq 不在なら block (fail-closed) で止めます」と自称する。だが行 121 の「ツール名が読めなければ対象外として exit 0」が先に走るため、行 306 に用意された拒否コードには<strong>構造的に到達できない</strong> (dead code = 決して実行されない死んだコード)。宣言と実装が逆。</div>
+    <div class="kv"><b>広がり</b>同型の構造 (ツール名を jq で読み、読めなければ素通し) が worktree_bash_write_guard にもあり、しかも対になる worktree_write_guard は正しく fail-closed — <strong>guard 2 枚が非対称</strong>。5 本まとめて新規 Medium (未開示・全 97 issue に未追跡)。</div>
+    <div class="kv"><b>実害の確率</b>低い (jq は常在依存)。問題の本体は「規約と実装の乖離 + 偽の開示」— 壊れた時に壊れたと分かる設計になっていないこと。</div>
+  </div>
+  <div class="card">
+    <h3><span class="sev sev-warn">MEDIUM</span>観測器自身のバグ — ledger 集計の locale 融合</h3>
+    <div class="kv"><b>何が起きたか</b>発火実績の集計スクリプトが、文字の並べ替え (sort) を LC_ALL=C (バイト順比較) 指定なしで実行しており、locale (言語環境設定) の照合規則が日本語 rule 名 2 つを同一視して<strong>件数を融合</strong>していた。「一括置換 20 件」は実は「一括置換 12 + 秘密ファイル読むな 8」の合成値。</div>
+    <div class="kv"><b>皮肉な構図</b>消えていた 8 件は、本監査が「最重要」と名指しした秘密ファイル読取 rule の発火実績そのもの。<strong>「層が生きている証拠」を数える観測器が、層の一部を見失っていた</strong>。issue 候補としてかいじゅう判断待ち。</div>
+  </div>
+
+  <h2><span class="no">05</span>記事超え 3 点</h2>
+  <ul class="plain">
+    <li><b>「配備≠実効」の live 実測文化</b> — 記事は「各段階に防護層を設ける」まで。ハーネスは設けた層を実際に撃って確かめる段階まで進む。過去には「静的検査もレビューも通った設定 202 本が 1 本も効いていない」を実弾で暴いた前例があり、「live で撃つまで、配備は仮説にすぎない」が教訓として明文化されている。</li>
+    <li><b>fail-closed/open の部品役割規約</b> — 記事の「安全側をデフォルトに」を、防御 gate / 観測 sensor / 逆契約 sensor の 3 分化 + 「fail-open は一枚岩ではない (壊れ方で倒れる方向が反転する)」という実測知見まで精密化。</li>
+    <li><b>設計外デフォルトの決定過程が残る</b> — default 切替の結論だけでなく、「切替を退けた分析」と「切替を決めた機構発見」が別々のログに意思決定の過程ごと残っている (出典は本監査で正確化)。</li>
+  </ul>
+
+  <h2><span class="no">06</span>独立検証 3 ラウンド — 監査自身も撃たれた</h2>
+  <p>この監査の検証ゲート (commit 前に別の目で全主張を照合する関門) は 3 ラウンドを要した:</p>
+  <div class="card">
+    <h3><span class="sev sev-warn">R1</span>第 1 ラウンド — 捕捉と消失</h3>
+    <div class="kv"><b>成果</b>settings_churn の偽宣言を実行検証で捕捉 (fail-open 3 本 → 4 本へ)。</div>
+    <div class="kv"><b>事故</b>セッション断でレポート原文が消失 (サブエージェントの出力はセッション内限り) → 第 2 ラウンドでゼロから再検証。</div>
+  </div>
+  <div class="card">
+    <h3><span class="sev sev-fail">R2</span>第 2 ラウンド — 核心は堅い、しかし要修正 7 件</h3>
+    <div class="kv"><b>確定</b>gate 表・偽宣言・計数・記事引用・issue 切り分けは全行 live 再現で一致。</div>
+    <div class="kv"><b>High 3 件</b>ledger 集計値の鵜呑み (合成値 20) / 移行記録の出典誤り / 「全 gate 走査」の誇張 (実際は 6/13) — 5 本目の fail-open はこの検証者が発見した。</div>
+    <div class="kv"><b>構図</b>落ちた 3 件はすべて「自分の外の道具の出力を、独立に確かめず転記した」箇所。<strong>本監査が掲げた「live で撃つまで配備は仮説」が、監査自身の手続きに 3 回適用されていなかった</strong>。全 7 件を本文へ反映。</div>
+  </div>
+  <div class="card">
+    <h3><span class="sev sev-pass">R3</span>第 3 ラウンド — spend limit と HITL 縮退</h3>
+    <div class="kv"><b>事故</b>月次利用上限で独立エージェントが起動不能に。</div>
+    <div class="kv"><b>縮退</b>skill の規定どおり「エージェントが取れなければ人間が独立検証者を務める (検証ゲート自体は飛ばさない)」を適用 — 修正 9 点の機械確認 (全一致) をメインが再実測し、独立性の担保はかいじゅうの読了承認 (HITL = human-in-the-loop、人間を輪の中に置く関門) に委ねて commit した。</div>
+  </div>
+
+  <h2><span class="no">07</span>残差サマリ</h2>
+  <table>
+    <thead><tr><th>severity</th><th>内容</th><th>扱い</th></tr></thead>
+    <tbody>
+      <tr><td><span class="mark mark-warn">Medium</span></td><td>block gate 5 本の jq 依存 fail-open (宣言なし 3 + 偽宣言 1 + 部分宣言 1、guard 2 枚非対称)</td><td>新規。issue 化はかいじゅう判断</td></tr>
+      <tr><td><span class="mark mark-warn">Medium</span></td><td>ledger 集計の LC_ALL 欠落 (発火実績が合成値になる観測器バグ)</td><td>新規。issue 化はかいじゅう判断</td></tr>
+      <tr><td><span class="mark mark-na">Low</span></td><td>timeout 時に hook が殺され素通しになる事実の明文が 1 箇所のみ (全 gate 共通の構造穴なのに宣言が非対称)</td><td>doc 追記で閉じる</td></tr>
+      <tr><td><span class="mark mark-na">Low</span></td><td>計数訂正 (gate 12→13 本) + 初稿の表記訂正 (行範囲・開示箇所数・行番号ずれ)</td><td>本文反映済み</td></tr>
+      <tr><td><span class="mark mark-pass">既知</span></td><td>中継段の機械層ゼロ (platform 依存) / sandbox 設定の失効 (開示 7 箇所以上) / #220・#222・#223</td><td>新規 issue 不要</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="no">08</span>総評</h2>
+  <div class="quote">
+    S-1.4 と S-1.5 は取り入れ済み — 4 段の防護と fail-closed 規約は実在し、発火実績まで観測されている。だが本弾の価値は「済み」の確認ではなく、<strong>fail-closed を名乗る門番たちの楽屋裏</strong>を初めて系統的に撃ったことにある。5 本が異常時に無言で開き、1 本は開くのに「閉じる」と宣言し、発火を数える観測器は数え間違えていた。そして同じレンズは監査自身にも刺さった — 集計器を鵜呑みにし、出典を読み違え、走査範囲を誇張した 3 箇所を独立検証が正した。「壊れた時にどちらへ倒れるか」は、防御にも、観測にも、監査にも、等しく問われる。
+  </div>
+
+
+  <footer>
+    Generated by explain-in-html skill / Claude Code<br>
+    2026.07.25 06:13 JST
+  </footer>
+
+</div>
+<script>
+/* code/pre ブロックに copy ボタンを付与する最小 JS (clipboard 用、kaiju 指定 2026-06-30)。
+   innerText を button 追加前に捕捉し、コピー文字列に "copy" が混入しないようにする。
+   self-contained を維持 (外部依存なし)。clipboard 以外の interactive JS は引き続き不使用。 */
+document.querySelectorAll("pre").forEach(function(pre){
+  var text = pre.innerText;
+  var b = document.createElement("button");
+  b.className = "copy-btn"; b.type = "button"; b.textContent = "copy";
+  b.addEventListener("click", function(){
+    navigator.clipboard.writeText(text).then(function(){
+      b.textContent = "copied"; b.classList.add("done");
+      setTimeout(function(){ b.textContent = "copy"; b.classList.remove("done"); }, 1200);
+    });
+  });
+  pre.style.position = "relative";
+  pre.appendChild(b);
+});
+</script>
+</body>
+</html>
