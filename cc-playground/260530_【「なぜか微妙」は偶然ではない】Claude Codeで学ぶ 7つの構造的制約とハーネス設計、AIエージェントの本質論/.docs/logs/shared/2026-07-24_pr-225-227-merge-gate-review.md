@@ -310,4 +310,4 @@ README 記載コマンド (shellcheck -x --source-path=tests --source-path=lib *
 - **開示**: 本再レビューは月次 spend limit で独立 agent が起動不能だったため、メイン自身のインライン検証 (全条件の実体照合 + テスト実走)。是正側の独立 essence レビュー record が両 PR に同梱されており、独立性はそちらの層と組で担保。
 - **マージ**: 推奨順どおり #225 (2026-07-24T21:36:25Z) → #227 (21:36:45Z) 完了、issue #216/#217 close、remote branch 自動削除。local main へ ff-only pull 済み (9583db3)。
 - **申し送り再突合 (マージ後 live 3 ケース)**: 実検査 = `no cycles: 2 module(s) checked` exit 0 のみ合格 / SwiftPM = `skipped:` exit 0 は不合格 / 0 件走査 = `no cycles: 0 module(s)` exit 0 も不合格 — 消費者 (orchestrating SKILL.md:244) の契約と完全一致。**追加修正なしでクローズ**。
-- **残フォロー**: #228 (branch-min の stack 依存化) OPEN。初回レビューで「別 issue 推奨」とした main 既存 3 件 (オプション値欠落の無限ループ / 非 Swift 経路の rc 無視 / `_is_number` の `.`) は未 issue 化のまま (かいじゅう判断待ち)。
+- **残フォロー**: #228 (branch-min の stack 依存化) OPEN。初回レビューで「別 issue 推奨」とした main 既存 3 件 (オプション値欠落の無限ループ / 非 Swift 経路の rc 無視 / `_is_number` の `.`) は、2026-07-25 にマージ後 main (9583db3) で再検証 — HANG は perl alarm 3s で exit 142 (live 再現)、`.` 通過は判定関数単体で live 再現、rc 揉み消しは是正 commit 未変更の静的確認一致 — の上で **issue #231 に 1 本化** (かいじゅう判断・受入基準案つき)。これで本レビュー起点の未追跡はゼロ。
