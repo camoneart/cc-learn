@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知識の有効期限 — note の per-doc 期限 vs ハーネスの定期クリーンアップ</title>
+<style>
+  :root{
+    --bg:#141413; --surface:#1d1b18; --surface-2:#262320; --line:#3a362e;
+    --text:#ece8df; --muted:#9b948a; --red:#E63946; --amber:#D9A05B; --green:#7FB069;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1100px 520px at 85% -10%, rgba(230,57,70,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(217,160,91,.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+    font-size:15px; line-height:1.8;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:56px 32px 88px;}
+  .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;letter-spacing:.34em;color:var(--red);margin-bottom:14px;}
+  h1{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;line-height:1.25;font-weight:700;margin-bottom:10px;}
+  h1 em{font-style:normal;color:var(--red);}
+  .meta{color:var(--muted);font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-bottom:36px;}
+  .meta span{margin-right:18px;}
+
+  .hero{display:flex;gap:28px;align-items:stretch;margin-bottom:40px;}
+  .grade-box{
+    min-width:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1px solid var(--line);background:var(--surface);padding:22px 18px;
+  }
+  .grade-letter{font-family:ui-serif,Georgia,serif;font-size:84px;line-height:1;font-weight:700;}
+  .grade-s .grade-letter{color:var(--amber);}
+  .grade-a .grade-letter{color:var(--green);}
+  .grade-b .grade-letter{color:#c9c2b4;}
+  .grade-c .grade-letter{color:var(--amber);}
+  .grade-d .grade-letter,.grade-e .grade-letter{color:var(--red);}
+  .grade-pct{font-family:ui-monospace,Menlo,monospace;font-size:15px;color:var(--muted);margin-top:8px;}
+  .grade-desc{flex:1;border:1px solid var(--line);background:var(--surface);padding:22px 26px;}
+  .grade-desc .label{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.22em;color:var(--muted);margin-bottom:8px;}
+  .grade-desc p{font-size:15px;}
+  .grade-desc strong{color:var(--amber);font-weight:700;}
+
+  h2{
+    font-family:ui-serif,Georgia,serif;font-size:24px;font-weight:700;
+    margin:48px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--line);
+  }
+  h2 .no{color:var(--red);font-family:ui-monospace,Menlo,monospace;font-size:14px;margin-right:12px;letter-spacing:.1em;}
+
+  p{margin:0 0 14px;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--amber);font-weight:700;}
+  em{font-style:normal;color:var(--red);font-weight:700;}
+  a{color:var(--amber);}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;color:var(--amber);background:var(--surface-2);border:1px solid var(--line);padding:1px 6px;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .stat{background:var(--surface);padding:14px 16px;}
+  .stat .k{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);}
+  .stat .v{font-size:14px;font-weight:700;margin-top:4px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{
+    text-align:left;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
+    color:var(--muted);font-weight:400;padding:10px 12px;border-bottom:1px solid var(--line);
+  }
+  td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:hover td{background:var(--surface);}
+  .cat-name{font-weight:700;white-space:nowrap;}
+  .score-cell{font-family:ui-monospace,Menlo,monospace;white-space:nowrap;}
+
+  .mark{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    padding:2px 7px;margin-right:5px;border:1px solid var(--line);
+  }
+  .mark-pass{color:var(--green);border-color:rgba(127,176,105,.45);}
+  .mark-warn{color:var(--amber);border-color:rgba(217,160,91,.5);}
+  .mark-fail{color:var(--red);border-color:rgba(230,57,70,.55);font-weight:700;}
+  .mark-na{color:var(--muted);}
+
+  .bar{height:6px;background:var(--surface-2);margin-top:6px;width:120px;}
+  .bar i{display:block;height:100%;background:var(--amber);}
+  .bar.low i{background:var(--red);}
+  .bar.high i{background:var(--green);}
+
+  .card{border:1px solid var(--line);background:var(--surface);padding:20px 24px;margin-bottom:18px;}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:10px;}
+  .sev{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;
+    padding:2px 9px;margin-right:10px;font-weight:700;
+  }
+  .sev-fail{color:#fff;background:var(--red);}
+  .sev-warn{color:#141413;background:var(--amber);}
+  .sev-pass{color:#141413;background:var(--green);}
+  .kv{margin:6px 0;font-size:14px;}
+  .kv b{color:var(--amber);font-weight:700;margin-right:6px;}
+  pre{
+    background:#0e0d0c;border:1px solid var(--line);padding:14px 40px 14px 16px;margin:12px 0 4px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.6;
+    overflow-x:auto;color:#d8d3c8;
+  }
+  .copy-btn{
+    position:absolute;top:8px;right:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px;letter-spacing:.06em;color:var(--amber);background:var(--surface);
+    border:1px solid var(--line);padding:2px 9px;cursor:pointer;
+  }
+  .copy-btn:hover{border-color:rgba(217,160,91,.55);color:var(--text);}
+  .copy-btn.done{color:var(--green);border-color:rgba(127,176,105,.5);}
+  .chip{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    color:var(--amber);border:1px solid rgba(217,160,91,.5);padding:1px 8px;margin-left:10px;
+  }
+  ul.plain{list-style:none;}
+  ul.plain li{padding:8px 0 8px 22px;position:relative;border-bottom:1px solid var(--line);}
+  ul.plain li::before{content:"";position:absolute;left:0;top:17px;width:10px;height:2px;background:var(--red);}
+
+  .quote{
+    border-left:3px solid var(--red);background:var(--surface);padding:20px 26px;
+    font-family:ui-serif,Georgia,serif;font-size:17px;line-height:1.9;
+  }
+
+  /* diff (before/after, GitHub PR "Files changed" 風 unified view) */
+  .diff{border:1px solid var(--line);background:#0e0d0c;margin:14px 0 18px;}
+  .diff-head{
+    display:flex;justify-content:space-between;gap:12px;padding:8px 14px;
+    border-bottom:1px solid var(--line);background:var(--surface);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);
+  }
+  .diff-head .file{color:var(--text);font-weight:700;}
+  .diff-head .tally .add{color:var(--green);}
+  .diff-head .tally .del{color:var(--red);margin-left:8px;}
+  .diff-body{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;
+  }
+  .diff-row{display:flex;white-space:pre;min-width:max-content;}
+  .diff-row .ln{flex:0 0 auto;width:34px;padding:0 8px;text-align:right;color:var(--muted);user-select:none;}
+  .diff-row .ln.new{border-right:1px solid var(--line);}
+  .diff-row .mk{flex:0 0 auto;width:20px;text-align:center;color:var(--muted);user-select:none;}
+  .diff-row .code{flex:1;padding:0 12px 0 8px;color:#d8d3c8;}
+  .diff-row.del{background:rgba(230,57,70,.12);}
+  .diff-row.del .mk{color:var(--red);font-weight:700;}
+  .diff-row.add{background:rgba(127,176,105,.12);}
+  .diff-row.add .mk{color:var(--green);font-weight:700;}
+  .diff-hunk{
+    padding:2px 14px;color:var(--muted);background:var(--surface-2);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  }
+
+  footer{
+    margin-top:56px;padding-top:18px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:12px;font-family:ui-monospace,Menlo,monospace;line-height:1.9;
+  }
+  @media print{
+    body{background:#fff;color:#1a1a1a;}
+    .wrap{padding:20px;}
+  }
+  @media (max-width:720px){
+    .hero{flex-direction:column;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  
+  <div class="kicker">EXPLAINER · 2026.07.24 · S-1.1 ③</div>
+  <h1>知識の<em>有効期限</em> — note とハーネスの設計分岐</h1>
+  <div class="meta"><span>概念解説</span><span>note 260405 S-1.1 ③</span><span>対象: ~/.claude</span></div>
+
+  
+
+  <div class="hero grade-b">
+  <div class="grade-box grade-b">
+    <div class="grade-letter">≠</div>
+    <div class="grade-pct">同じ目的 / 別の手段</div>
+  </div>
+  <div class="grade-desc">
+    <div class="label">要旨</div>
+    <p>note S-1.1 の③「有効期限を設定する」を、あなたのハーネスは <strong>手段ごと棄却</strong> し、同じ目的 (陳腐化した知識が未来のセッションを誤らせない) を別の仕組みで達成している。単なる実装差ではなく、note の手段を評価した上で退けた documented な設計分岐じゃ。</p>
+  </div>
+</div>
+<div class="stats"><div class="stat"><div class="k">note の手段</div><div class="v">per-doc の有効期限フィールド</div></div><div class="stat"><div class="k">ハーネスの手段</div><div class="v">定期クリーンアップ (staleness)</div></div><div class="stat"><div class="k">両者の目的</div><div class="v">同一 (陳腐化知識の封じ込め)</div></div><div class="stat"><div class="k">分岐の性質</div><div class="v">意図的棄却 (documented)</div></div></div>
+<h2><span class="no">01</span>何の話か</h2>
+<p>外部から取り込んだ情報 (Web 検索結果や API 仕様など) を長期記憶に保存すると、時間が経つと古くなる。「API の上限は 100/分」という 2026 年の事実が、2027 年には変わっているかもしれない。期限の仕組みが無いと、古くなった事実が黙って全セッションを誤らせる ── これが note のリスク②「情報汚染の伝播」の、保存した後の側 (封じ込め) の問題じゃ。</p>
+<p>この問題への対処を、note とあなたのハーネスは違う手段で解いている。</p>
+<h2><span class="no">02</span>note のやり方 — 文書ごとに有効期限を貼る</h2>
+<p>note S-1.1 の昇格ルール③は、知識を保存するときに「いつ再確認するか」の期限を文書自身に書け、という手段じゃ。</p>
+<pre>---
+type: knowledge
+fact: "Vercel 無料枠: 帯域 100GB/月"
+source: "WebSearch 2026-03-29 取得"
+valid_until: 2026-09-29        # 時刻ベースの有効期限
+# または review_by: "次回リリース"  # イベントベース
+---</pre>
+<p>そして定期ジョブや起動時チェックが全知識を走査し、期限を過ぎたものを「⚠ 期限切れ、再確認せよ」とフラグする。note の例「次回リリースで再確認」は、時刻でなくイベント (リリースという事象) を引き金にする形じゃ。</p>
+<h2><span class="no">03</span>あなたのハーネスのやり方 — 期限は貼らず、定期に掃除する</h2>
+<p>あなたのハーネスは、この「文書ごとの有効期限フィールド」を採用していない。代わりに 3 つの別解で同じ目的を達成している:</p>
+<ul class="plain"><li><b>(a) 定期クリーンアップ / 古さ検知</b> — 文書に期限を貼る代わりに、ドキュメント全体を定期的に見直し、古い前提を整理する運用。C-4 (updated 日付と git commit 日の照合で「自己申告が古い」を検知) が機械側の部分代替。</li><li><b>(b) ADR の「撤退条件」</b> — 重要な意思決定 (ADR) には「どの観測値・事象が出たらこの決定を見直すか」を書く。これは時刻でなくイベント駆動の再確認 = note の「次回リリースで再確認」に近い思想を、最重要の決定に限って持っている。</li><li><b>(c) 原則3 (正本共有)</b> — 知識ドキュメントの有効期限という候補は、essence 蒸留で「原則3で吸収」として整理された。真実の源を一箇所に集約し、そこを更新すれば下流が追随する設計で、期限管理の必要を下げる。</li></ul>
+<h2><span class="no">04</span>なぜ分岐したのか — あなた自身が棄却した</h2>
+<p>これは見落としではない。essence の「棄却した候補」表に、はっきり残っている:</p>
+<pre>| 知識ドキュメントの有効期限 | 260404 B-2 | essence README アンチパターン + 原則3で吸収 |</pre>
+<p>棄却の理由は、essence README のアンチパターン節「古い前提を残置 → モデル進化との乖離で判断を歪める」+「定期的にドキュメント全体をクリーンアップ…推奨」に対応する。つまり判断はこうじゃ ── <strong>文書ごとに期限フィールドを乱立させるより、全体を定期的に掃除する方が保守的で崩れにくい</strong>。フィールドが増えれば管理漏れも増え、期限切れの検知そのものが形骸化しうる。だから「期限を貼る」でなく「定期に掃除する」を選んだ。</p>
+<h2><span class="no">05</span>並べて見る</h2>
+<table><thead><tr><th>観点</th><th>note の③</th><th>あなたのハーネス</th></tr></thead><tbody><tr><td class="cat-name">目的</td><td>陳腐化した知識が未来を誤らせない</td><td><span class="mark mark-pass"> </span>同じ (陳腐化知識の封じ込め)</td></tr><tr><td class="cat-name">手段</td><td>文書ごとの有効期限フィールド (valid_until / review_by)</td><td><span class="mark mark-pass"> </span>定期クリーンアップ + ADR 撤退条件 + 原則3</td></tr><tr><td class="cat-name">引き金</td><td>時刻 or イベント (次回リリース)</td><td><span class="mark mark-pass"> </span>定期運用 (staleness) + ADR はイベント駆動</td></tr><tr><td class="cat-name">粒度</td><td>文書 1 件ごと</td><td><span class="mark mark-pass"> </span>ドキュメント全体を一括</td></tr><tr><td class="cat-name">この手段の扱い</td><td>推奨パターン</td><td><span class="mark mark-warn"> </span>棄却候補 (アンチパターンとして退けた)</td></tr></tbody></table>
+<h2><span class="no">06</span>総評</h2>
+<div class="quote">結論はあなたの理解どおり ── 有効期限に関して、あなたのハーネスは note とは異なる実装をしている。ただし「たまたま違う」のではなく、note が示した「文書ごとの有効期限」という手段を評価した上で、フィールド乱立より定期クリーンアップの方が保守的だと判断して退けた、documented な設計分岐じゃ。目的 (陳腐化知識を未来に持ち越さない) は完全に共有しており、達成の道具が違うだけ。note に無い「ADR の撤退条件」というイベント駆動の再確認まで持っている点では、むしろ一部で note を超えている。</div>
+
+  <footer>
+    Generated by explain-in-html skill / Claude Code<br>
+    2026.07.24 09:31 JST
+  </footer>
+
+</div>
+<script>
+/* code/pre ブロックに copy ボタンを付与する最小 JS (clipboard 用、kaiju 指定 2026-06-30)。
+   innerText を button 追加前に捕捉し、コピー文字列に "copy" が混入しないようにする。
+   self-contained を維持 (外部依存なし)。clipboard 以外の interactive JS は引き続き不使用。 */
+document.querySelectorAll("pre").forEach(function(pre){
+  var text = pre.innerText;
+  var b = document.createElement("button");
+  b.className = "copy-btn"; b.type = "button"; b.textContent = "copy";
+  b.addEventListener("click", function(){
+    navigator.clipboard.writeText(text).then(function(){
+      b.textContent = "copied"; b.classList.add("done");
+      setTimeout(function(){ b.textContent = "copy"; b.classList.remove("done"); }, 1200);
+    });
+  });
+  pre.style.position = "relative";
+  pre.appendChild(b);
+});
+</script>
+</body>
+</html>
