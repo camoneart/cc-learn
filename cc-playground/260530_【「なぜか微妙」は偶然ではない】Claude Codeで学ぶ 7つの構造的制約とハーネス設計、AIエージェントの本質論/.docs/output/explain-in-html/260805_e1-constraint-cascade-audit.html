@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-1 制約カスケード / E-1.1 定期監査 — 取り入れ監査</title>
+<style>
+:root{
+  --bg:#1c1a17; --bg2:#232019; --card:#2a2620; --line:#3a352c;
+  --fg:#e8e2d6; --dim:#a89f8f; --faint:#7d7568;
+  --red:#d9776a; --amber:#d9a441; --green:#7fa76a; --blue:#7d9bb5;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:ui-serif,Georgia,"Times New Roman",serif;
+  line-height:1.75; font-size:16px;
+  background-image:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(217,164,65,.09),transparent 60%);
+}
+.wrap{max-width:960px;margin:0 auto;padding:56px 24px 96px}
+h1{font-size:30px;line-height:1.35;margin:0 0 8px;letter-spacing:.01em}
+.sub{color:var(--dim);font-size:15px;margin:0 0 40px}
+h2{font-size:21px;margin:52px 0 18px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+h3{font-size:17px;margin:32px 0 12px;color:var(--fg)}
+p{margin:0 0 15px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:0 0 18px}
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:0 0 26px}
+.v{border-radius:10px;padding:20px 22px;border:1px solid var(--line);background:var(--card)}
+.v.ok{border-left:4px solid var(--green)}
+.v.part{border-left:4px solid var(--amber)}
+.v .lab{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+.v .val{font-size:19px;font-weight:600;margin-bottom:9px}
+.v.ok .val{color:var(--green)} .v.part .val{color:var(--amber)}
+.v .why{font-size:14px;color:var(--dim);line-height:1.65}
+table{width:100%;border-collapse:collapse;margin:0 0 20px;font-size:14.5px;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:10px 13px;text-align:left;vertical-align:top}
+th{background:var(--bg2);color:var(--dim);font-weight:600;white-space:nowrap}
+code{background:var(--bg2);padding:2px 6px;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--amber)}
+blockquote{margin:0 0 18px;padding:14px 18px;border-left:3px solid var(--blue);background:var(--bg2);border-radius:0 8px 8px 0;color:var(--dim);font-size:15px}
+.sev{display:inline-block;font-size:11px;letter-spacing:.1em;padding:2px 8px;border-radius:999px;font-family:ui-monospace,monospace;vertical-align:2px}
+.sev.m{background:rgba(217,164,65,.16);color:var(--amber);border:1px solid rgba(217,164,65,.35)}
+.sev.l{background:rgba(125,155,181,.14);color:var(--blue);border:1px solid rgba(125,155,181,.32)}
+.num{font-family:ui-monospace,monospace;font-size:26px;color:var(--red);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:0 0 24px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:16px 18px;text-align:center}
+.stat .n{font-family:ui-monospace,monospace;font-size:25px;font-weight:600;display:block;margin-bottom:3px}
+.stat .t{font-size:12.5px;color:var(--faint);line-height:1.45}
+.red{color:var(--red)} .amber{color:var(--amber)} .green{color:var(--green)} .blue{color:var(--blue)}
+ul{margin:0 0 16px;padding-left:22px} li{margin-bottom:8px}
+.foot{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);color:var(--faint);font-size:13px}
+.tag{font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>E-1「制約が品質を生む」+ E-1.1「ドリフトを前提に定期的に掃除する」</h1>
+<p class="sub">note 記事 260405 の環境設計章 (2138–2199 行) × 自ハーネス <code>~/.claude</code> の取り入れ監査 — 2026-08-04 実測</p>
+
+<div class="verdict">
+  <div class="v ok">
+    <div class="lab">E-1 制約が品質を生む</div>
+    <div class="val">取り入れ済み</div>
+    <div class="why">4 層すべてに実体が実在する。ただし<strong>機械強制まで到達しているのは Layer2 と Layer3 の一部</strong>で、Layer1 は規律のみ、Layer4 は名指しの規律のみ。</div>
+  </div>
+  <div class="v part">
+    <div class="lab">E-1.1 定期的に掃除する</div>
+    <div class="val">部分 gap</div>
+    <div class="why">基準は 3 本あるが <strong>hook へ 1 本も渡っていない</strong>。除草の実行は手動で、時計駆動の機構は 0 件。</div>
+  </div>
+</div>
+
+<h2>記事が説く 4 層と、ハーネスの実体</h2>
+
+<blockquote>出力品質を上げる最も確実な方法は、良いプロンプトを書くことではなく、解決空間を狭めることだ。<span class="tag">— 記事 2148 行</span></blockquote>
+
+<table>
+<tr><th>Layer</th><th>記事の例</th><th>ハーネスの実体</th><th>強制の形</th><th>実測</th></tr>
+<tr><td>1 命名規則</td><td>kebab-case</td><td>skills / agents / rules の綴り</td><td class="red">機械強制なし</td><td>逸脱 0 (71/71・32/32・13/13)。ただし <code>hooks/*.sh</code> に規則外 2 件</td></tr>
+<tr><td>2 ディレクトリ</td><td><code>src/features/</code></td><td><code>permissions.deny</code></td><td class="green">Edit 経路を封鎖</td><td>ハーネス自己保護 13 entry。Bash 書込は通ると自己開示</td></tr>
+<tr><td>3 メタデータ</td><td>YAML frontmatter</td><td>SKILL.md / agent / ADR</td><td class="amber">warn 1 本 + block 1 本</td><td>保持率 71/71・32/32。<strong>基準 validator 2 本が実在庫を落とす</strong></td></tr>
+<tr><td>4 参照実装<br><span class="tag">記事「最も強力」</span></td><td>「これを踏襲せよ」</td><td>32 skill が <code>references/</code></td><td class="red">名指しの規律のみ</td><td>参照実装の名指し 4 件中 <strong>1 件がリンク切れ</strong></td></tr>
+</table>
+
+<h2>核心の gap — 基準は定義された。検知へ渡っていない</h2>
+
+<blockquote>(1) 基準を定義する / (2) Hooks で自動検知する / (3) 既存コードの逸脱を定期的に除去する<span class="tag">— 記事 2184–2188 行「定期監査パターン」</span></blockquote>
+
+<p>この (1) → (2) が切れている。3 本の validator を実在庫へ全件実走した結果:</p>
+
+<table>
+<tr><th>基準 (validator)</th><th>対象</th><th>実走結果</th><th>hook 配線</th><th>gap か</th></tr>
+<tr><td><code>quick_validate.py</code></td><td>skill 71</td><td class="red">PASS 44 / <strong>FAIL 27</strong></td><td class="red">0 件</td><td class="amber">gap</td></tr>
+<tr><td><code>validate-agent-definition.sh</code></td><td>agent 32</td><td class="red">PASS 11 / <strong>FAIL 21</strong></td><td class="red">0 件</td><td class="amber">gap</td></tr>
+<tr><td><code>validate-knowledge.py</code></td><td><code>.docs</code> 515</td><td class="red">PASS 3 / FAIL 512</td><td class="red">0 件</td><td class="green">gap でない<br><span class="tag">理由開示済み</span></td></tr>
+</table>
+
+<div class="card">
+<h3 style="margin-top:0">3 本目だけ性質が違う</h3>
+<p><code>validate-knowledge.py</code> の 512 FAIL は <strong>gap ではない</strong>。<code>.docs/README.md</code> が「<code>.docs</code> は L2 知識永続化の器ではない」「validator 未配線は怠慢ではなく必然的帰結」と理由を開示している <em>設計上の意図的な不適用</em>。</p>
+<p>対して上 2 本の FAIL は <strong>skill / agent という、その validator が本来の対象とする在庫</strong>で起きている。「器が違う」の弁明が立たない。</p>
+<p style="margin-bottom:0"><strong>実害</strong>: fork 系 skill は <code>context:</code> + <code>subagent:</code> を必ず使うが、この 2 キーは許可集合に無い。つまり新規 fork 系は<strong>必ず赤になる</strong>。基準を信頼できないまま放置されている。</p>
+</div>
+
+<h2>定期監査 (3) — 促しは自動、除草は手動</h2>
+
+<div class="stats">
+  <div class="stat"><span class="n red">0</span><span class="t">cron / launchd /<br>cloud routine</span></div>
+  <div class="stat"><span class="n green">2</span><span class="t">SessionStart 駆動の<br>代替 hook</span></div>
+  <div class="stat"><span class="n green">2</span><span class="t">金曜リマインダーの<br>連続発火 (週)</span></div>
+  <div class="stat"><span class="n amber">3</span><span class="t">監査 skill<br>(すべて手動起動)</span></div>
+</div>
+
+<p>時計駆動の機構は 0 件 — <code>crontab -l</code> / <code>CronList</code> / LaunchAgents 2 箇所のすべてで Claude 関連は不在。ただしこれは<strong>未着手ではなく設計判断</strong>で、hook 自身が理由と限界を宣言している:</p>
+
+<blockquote>cron の代替: 時計でなくセッション開始イベントで「金曜 かつ 前回通知から下限期間経過」を判定して通知する。SessionStart 駆動ゆえ金曜に起動した時のみ発火する (金曜に起動しない週はスキップ)。<span class="tag">— hook_session_start_essence_proposal_reminder.sh</span></blockquote>
+
+<p>親バッチ (2 ヶ月前) が「daemon は workers 空」と記した <code>daemon</code> の正体も確定した — Claude Code アプリ自身の認証更新プロセスで、<strong>ハーネス監査のワーカーではない</strong> (1100 行中 auth 650 / <code>[bg]</code> 222 / version 143 / 監査系 <span class="red">0</span>)。</p>
+
+<h2>残差 5 件</h2>
+
+<div class="card">
+<p><span class="sev m">MEDIUM</span> <strong>基準 2 本が実在庫を落としたまま hook 未配線で固着</strong><br>
+<span style="color:var(--dim);font-size:14.5px">どちらを正とするか (基準か在庫か) の設計判断が先に要る。判断を経ずに配線すると 48 件が赤で止まる。</span></p>
+</div>
+<div class="card">
+<p><span class="sev m">MEDIUM</span> <strong>無効化 skill への参照追従に機械強制が無い</strong><br>
+<span style="color:var(--dim);font-size:14.5px">無効化 28 本中 9 本が live 15 ファイルから参照。<strong>新発見ではない</strong> — issue #84 (2026-07-09) が検出し 🟢 Low で受容済み。本項はその再評価提案。</span></p>
+</div>
+<div class="card">
+<p><span class="sev m">MEDIUM</span> <strong>記事が名指しする「ファイル名検査 hook」が存在しない</strong><br>
+<span style="color:var(--dim);font-size:14.5px">遵守率は 100% だが、守っているのは機構でなく規律。親バッチはこの hook の存在を ✅ の根拠に挙げていたが現時点で不成立。</span></p>
+</div>
+<div class="card">
+<p><span class="sev m">MEDIUM</span> <strong>agent 名の判定器に検出漏れ</strong><br>
+<span style="color:var(--dim);font-size:14.5px">実正規表現へ逆変異 6 種を投入すると <code>trailing-</code> と <code>double--hyphen</code> が素通り。Layer1 は「機械強制が無く、手動検査の側にも穴がある」。</span></p>
+</div>
+<div class="card">
+<p><span class="sev m">MEDIUM</span> <strong>定期除去は促しのみ自動・実行は手動</strong><br>
+<span style="color:var(--dim);font-size:14.5px">cron 不採用は「時計で起こしても人がいなければ結果を読む者がいない」という設計判断として文書化済み。ゆえに High には上げない。</span></p>
+</div>
+<div class="card">
+<p><span class="sev l">LOW</span> <strong><code>.docs/knowledge/</code> 不在は gap ではない</strong><br>
+<span style="color:var(--dim);font-size:14.5px">adopt-on-use の設計判断として記録済み。「gap でない」ことの明示記録。</span></p>
+</div>
+
+<h2>この監査自体の検証記録</h2>
+
+<div class="stats">
+  <div class="stat"><span class="n amber">2</span><span class="t">独立検証<br>ラウンド</span></div>
+  <div class="stat"><span class="n red">28</span><span class="t">倒れた<br>自分の主張</span></div>
+  <div class="stat"><span class="n red">4</span><span class="t">壊れた<br>測定器</span></div>
+  <div class="stat"><span class="n green">0</span><span class="t">捏造<br>(検証者評価)</span></div>
+</div>
+
+<p>判定ログは fail-close の独立検証ゲートを 2 ラウンド通した第 3 版。<strong>倒れ方に構造があった</strong>:</p>
+
+<table>
+<tr><th>ラウンド</th><th>倒れた数</th><th>何が倒れたか</th><th>代表例</th></tr>
+<tr><td>1 回目</td><td class="red">16</td><td><strong>数値と事実</strong></td><td>「参照実装のリンク切れ 0」が偽 (実際は 1/4)。「deny から除外」が真逆 (実体は重複 deny)</td></tr>
+<tr><td>2 回目</td><td class="red">12</td><td><strong>機序・フレーミング・一般化</strong></td><td>「最大の収穫」が既知だった (issue #84)。免責基準の非対称。是正した機序がさらに不正確</td></tr>
+</table>
+
+<div class="card">
+<h3 style="margin-top:0">1 回で打ち切っていたら見つからなかったもの</h3>
+<p>数値の誤りは 1 ラウンドで払底した。だが「<strong>どう解釈するか</strong>」の誤りは 2 回目でしか出てこなかった。最も重い指摘 — 本監査が「最大の収穫」と呼んだ現象が約 1 ヶ月前に検出・受容されていたこと、そして <code>validate-knowledge.py</code> にだけ既存開示を探して無効化追従には探さなかった<strong>免責基準の非対称</strong> — は、2 ラウンド目で初めて出た。</p>
+<p style="margin-bottom:0">逆に、第 1 ラウンド後に立てようとした運用規律「手順を書かなかった 0 件が死んだ」は、第 2 ラウンドが <strong>n=1 の事後パターン</strong>だと反証した (第 2 版にも手順なしの 0 件が 2 件あり、どちらも真だった)。<em>規律を作りたくなる衝動</em>自体が、この監査が戒めた「測定から言えないことへ踏み出す」の同型だった。</p>
+</div>
+
+<div class="foot">
+判定ログ (正本): <code>.docs/logs/shared/2026-08-04_e-1-and-e-1-1-constraint-cascade-periodic-audit-deepdive.md</code><br>
+記事: note 260405 E-1 = 2138–2172 行 / E-1.1 = 2174–2199 行 · 親バッチ: <code>2026-05-30_note-harness-gap-analysis.md</code><br>
+本 HTML は判定ログ由来の派生 artifact。両者が食い違う場合は markdown 判定ログが正本。
+</div>
+
+</div>
+</body>
+</html>
