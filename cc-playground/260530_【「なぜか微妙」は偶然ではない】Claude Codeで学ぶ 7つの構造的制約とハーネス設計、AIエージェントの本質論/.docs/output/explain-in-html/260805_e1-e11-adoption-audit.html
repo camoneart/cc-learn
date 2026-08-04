@@ -1,0 +1,401 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-1 制約が品質を生む / E-1.1 ドリフト掃除 — 取り入れ監査</title>
+<style>
+  :root{
+    --bg:#141413; --surface:#1d1b18; --surface-2:#262320; --line:#3a362e;
+    --text:#ece8df; --muted:#9b948a; --red:#E63946; --amber:#D9A05B; --green:#7FB069;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1100px 520px at 85% -10%, rgba(230,57,70,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(217,160,91,.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+    font-size:15px; line-height:1.8;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:56px 32px 88px;}
+  .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;letter-spacing:.34em;color:var(--red);margin-bottom:14px;}
+  h1{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;line-height:1.25;font-weight:700;margin-bottom:10px;}
+  h1 em{font-style:normal;color:var(--red);}
+  .meta{color:var(--muted);font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-bottom:36px;}
+  .meta span{margin-right:18px;}
+
+  .hero{display:flex;gap:28px;align-items:stretch;margin-bottom:40px;}
+  .grade-box{
+    min-width:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1px solid var(--line);background:var(--surface);padding:22px 18px;
+  }
+  .grade-letter{font-family:ui-serif,Georgia,serif;font-size:84px;line-height:1;font-weight:700;}
+  .grade-s .grade-letter{color:var(--amber);}
+  .grade-a .grade-letter{color:var(--green);}
+  .grade-b .grade-letter{color:#c9c2b4;}
+  .grade-c .grade-letter{color:var(--amber);}
+  .grade-d .grade-letter,.grade-e .grade-letter{color:var(--red);}
+  .grade-pct{font-family:ui-monospace,Menlo,monospace;font-size:15px;color:var(--muted);margin-top:8px;}
+  .grade-desc{flex:1;border:1px solid var(--line);background:var(--surface);padding:22px 26px;}
+  .grade-desc .label{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.22em;color:var(--muted);margin-bottom:8px;}
+  .grade-desc p{font-size:15px;}
+  .grade-desc strong{color:var(--amber);font-weight:700;}
+
+  h2{
+    font-family:ui-serif,Georgia,serif;font-size:24px;font-weight:700;
+    margin:48px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--line);
+  }
+  h2 .no{color:var(--red);font-family:ui-monospace,Menlo,monospace;font-size:14px;margin-right:12px;letter-spacing:.1em;}
+
+  p{margin:0 0 14px;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--amber);font-weight:700;}
+  em{font-style:normal;color:var(--red);font-weight:700;}
+  a{color:var(--amber);}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;color:var(--amber);background:var(--surface-2);border:1px solid var(--line);padding:1px 6px;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .stat{background:var(--surface);padding:14px 16px;}
+  .stat .k{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);}
+  .stat .v{font-size:14px;font-weight:700;margin-top:4px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{
+    text-align:left;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
+    color:var(--muted);font-weight:400;padding:10px 12px;border-bottom:1px solid var(--line);
+  }
+  td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:hover td{background:var(--surface);}
+  .cat-name{font-weight:700;white-space:nowrap;}
+  .score-cell{font-family:ui-monospace,Menlo,monospace;white-space:nowrap;}
+
+  .mark{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    padding:2px 7px;margin-right:5px;border:1px solid var(--line);
+  }
+  .mark-pass{color:var(--green);border-color:rgba(127,176,105,.45);}
+  .mark-warn{color:var(--amber);border-color:rgba(217,160,91,.5);}
+  .mark-fail{color:var(--red);border-color:rgba(230,57,70,.55);font-weight:700;}
+  .mark-na{color:var(--muted);}
+
+  .bar{height:6px;background:var(--surface-2);margin-top:6px;width:120px;}
+  .bar i{display:block;height:100%;background:var(--amber);}
+  .bar.low i{background:var(--red);}
+  .bar.high i{background:var(--green);}
+
+  .card{border:1px solid var(--line);background:var(--surface);padding:20px 24px;margin-bottom:18px;}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:10px;}
+  .sev{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;
+    padding:2px 9px;margin-right:10px;font-weight:700;
+  }
+  .sev-fail{color:#fff;background:var(--red);}
+  .sev-warn{color:#141413;background:var(--amber);}
+  .sev-pass{color:#141413;background:var(--green);}
+  .kv{margin:6px 0;font-size:14px;}
+  .kv b{color:var(--amber);font-weight:700;margin-right:6px;}
+  pre{
+    background:#0e0d0c;border:1px solid var(--line);padding:14px 40px 14px 16px;margin:12px 0 4px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.6;
+    overflow-x:auto;color:#d8d3c8;
+  }
+  .copy-btn{
+    position:absolute;top:8px;right:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px;letter-spacing:.06em;color:var(--amber);background:var(--surface);
+    border:1px solid var(--line);padding:2px 9px;cursor:pointer;
+  }
+  .copy-btn:hover{border-color:rgba(217,160,91,.55);color:var(--text);}
+  .copy-btn.done{color:var(--green);border-color:rgba(127,176,105,.5);}
+  .chip{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    color:var(--amber);border:1px solid rgba(217,160,91,.5);padding:1px 8px;margin-left:10px;
+  }
+  ul.plain{list-style:none;}
+  ul.plain li{padding:8px 0 8px 22px;position:relative;border-bottom:1px solid var(--line);}
+  ul.plain li::before{content:"";position:absolute;left:0;top:17px;width:10px;height:2px;background:var(--red);}
+
+  .quote{
+    border-left:3px solid var(--red);background:var(--surface);padding:20px 26px;
+    font-family:ui-serif,Georgia,serif;font-size:17px;line-height:1.9;
+  }
+
+  /* diff (before/after, GitHub PR "Files changed" 風 unified view) */
+  .diff{border:1px solid var(--line);background:#0e0d0c;margin:14px 0 18px;}
+  .diff-head{
+    display:flex;justify-content:space-between;gap:12px;padding:8px 14px;
+    border-bottom:1px solid var(--line);background:var(--surface);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);
+  }
+  .diff-head .file{color:var(--text);font-weight:700;}
+  .diff-head .tally .add{color:var(--green);}
+  .diff-head .tally .del{color:var(--red);margin-left:8px;}
+  .diff-body{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;
+  }
+  .diff-row{display:flex;white-space:pre;min-width:max-content;}
+  .diff-row .ln{flex:0 0 auto;width:34px;padding:0 8px;text-align:right;color:var(--muted);user-select:none;}
+  .diff-row .ln.new{border-right:1px solid var(--line);}
+  .diff-row .mk{flex:0 0 auto;width:20px;text-align:center;color:var(--muted);user-select:none;}
+  .diff-row .code{flex:1;padding:0 12px 0 8px;color:#d8d3c8;}
+  .diff-row.del{background:rgba(230,57,70,.12);}
+  .diff-row.del .mk{color:var(--red);font-weight:700;}
+  .diff-row.add{background:rgba(127,176,105,.12);}
+  .diff-row.add .mk{color:var(--green);font-weight:700;}
+  .diff-hunk{
+    padding:2px 14px;color:var(--muted);background:var(--surface-2);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  }
+
+  footer{
+    margin-top:56px;padding-top:18px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:12px;font-family:ui-monospace,Menlo,monospace;line-height:1.9;
+  }
+  @media print{
+    body{background:#fff;color:#1a1a1a;}
+    .wrap{padding:20px;}
+  }
+  @media (max-width:720px){
+    .hero{flex-direction:column;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  
+  <div class="kicker">ADOPTION AUDIT · 2026.08.05</div>
+  <h1>制約は 4 層とも在った。<br>欠けていたのは<em>層をつなぐ自動化</em></h1>
+  <div class="meta"><span>2026.08.05</span><span>note 260405 環境設計章 (E-1 / E-1.1)</span><span>対象 ~/.claude</span></div>
+
+  
+
+  <div class="hero grade-b">
+    <div class="grade-box">
+      <div class="grade-letter">B</div>
+      <div class="grade-pct">E-1 済 / E-1.1 部分</div>
+    </div>
+    <div class="grade-desc">
+      <div class="label">総合判定</div>
+      <p><strong>E-1「制約が品質を生む」= 取り入れ済み</strong>。記事が説く 4 つの層すべてに実体があった。ただし機械が自動で強制しているのは Layer2 と Layer3 の一部だけで、Layer1 と Layer4 は<strong>人の規律で保っている</strong>。</p>
+      <p><strong>E-1.1「ドリフトを前提に定期的に掃除する」= 部分 gap (一部が欠けている)</strong>。判定の基準は 3 本そろっているのに、<em>そのどれも自動検知の仕組みへつながっていない</em>。掃除の実行も人が手で起動している。</p>
+    </div>
+  </div>
+
+  <h2><span class="no">01</span>数字で見る監査結果</h2>
+
+  <div class="stats">
+    <div class="stat"><div class="k">CASCADE LAYERS</div><div class="v">4 層すべてに実体あり</div></div>
+    <div class="stat"><div class="k">MACHINE-ENFORCED</div><div class="v">Layer2 + Layer3 の一部のみ</div></div>
+    <div class="stat"><div class="k">RESIDUALS</div><div class="v">Medium 4 / Low 1</div></div>
+    <div class="stat"><div class="k">SCHEDULED JOBS</div><div class="v">0 件 (時計で起きる仕組み)</div></div>
+  </div>
+
+  <p>note 記事 260405 の環境設計章 (記事本文 2138〜2199 行) を、自分のハーネス (エージェントを制御する仕組みの総体。実体は <code>~/.claude</code> 配下) と突き合わせた。記事の主張はこうだ。</p>
+
+  <div class="quote">出力品質を上げる最も確実な方法は、良いプロンプトを書くことではなく、解決空間を狭めることだ。</div>
+
+  <h2><span class="no">02</span>制約カスケード 4 層 — 記事の設計図と実体の対応</h2>
+
+  <p>記事は「粒度の違う 4 つの層を積み重ねて、AI が選べる範囲を段階的に狭める」設計を提案する。各層がハーネスに実在するかを 1 つずつ測った。</p>
+
+  <table>
+    <thead>
+      <tr><th>LAYER</th><th>記事の例</th><th>ハーネスの実体</th><th>強制の形</th><th>実測</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat-name">1 命名規則</td>
+        <td>kebab-case (小文字とハイフンでつなぐ書き方)</td>
+        <td>skill / agent / rule のファイル名</td>
+        <td><span class="mark mark-fail">機械強制なし</span></td>
+        <td>逸脱 0 件 (71/71・32/32・13/13)。ただし hook ファイルに規則外が 2 件</td>
+      </tr>
+      <tr>
+        <td class="cat-name">2 ディレクトリ構造</td>
+        <td><code>src/features/</code> のような配置ルール</td>
+        <td>権限設定の拒否リスト (<code>permissions.deny</code>)</td>
+        <td><span class="mark mark-pass">編集経路を封鎖</span></td>
+        <td>自己保護の項目 13 件。ただし別経路 (シェル) からの書き込みは通ると自ら開示している</td>
+      </tr>
+      <tr>
+        <td class="cat-name">3 メタデータ</td>
+        <td>ファイル冒頭の設定ブロック (YAML フロントマター)</td>
+        <td>skill / agent / 意思決定記録の各冒頭</td>
+        <td><span class="mark mark-warn">警告 1 本 + 阻止 1 本</span></td>
+        <td>保持率は 71/71・32/32。<strong>ただし基準となる検査プログラム 2 本が、実在庫を落とす</strong></td>
+      </tr>
+      <tr>
+        <td class="cat-name">4 参照実装<br><span class="score-cell">記事「最も強力」</span></td>
+        <td>「このファイルを踏襲せよ」</td>
+        <td>32 個の skill が参照資料を同梱</td>
+        <td><span class="mark mark-fail">名指しの規律のみ</span></td>
+        <td>「参照実装」と名指しされた 4 件のうち <em>1 件が実在しない</em></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>記事が「最も強力」と呼ぶのは Layer4 (参照実装) だ。ハーネスでも量的には最も厚い。<strong>ただし「厚い」ことと「健全である」ことは別だった</strong> — 名指しされた 4 件のうち 1 件は、無効化して別フォルダへ移した skill を指したままだった。</p>
+
+  <h2><span class="no">03</span>核心の gap — 基準はある。検知へつながっていない</h2>
+
+  <p>記事は掃除の手順を 3 段階で示す。<strong>(1) 基準を定義する → (2) Hooks (特定の操作の前後で自動実行される小さなプログラム) で自動検知する → (3) 既存の逸脱を定期的に除去する</strong>。このうち <em>(1) から (2) への受け渡しが切れていた</em>。</p>
+
+  <p>基準にあたる検査プログラム (validator) 3 本を、実際の在庫すべてに走らせた結果がこれだ。</p>
+
+  <table>
+    <thead>
+      <tr><th>VALIDATOR</th><th>対象</th><th>実走結果</th><th>自動起動の配線</th><th>gap か</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat-name"><code>quick_validate.py</code></td>
+        <td>skill 71 個</td>
+        <td class="score-cell">合格 44 / <strong>不合格 27</strong><div class="bar low"><i style="width:62%"></i></div></td>
+        <td><span class="mark mark-fail">0 件</span></td>
+        <td><span class="mark mark-warn">gap</span></td>
+      </tr>
+      <tr>
+        <td class="cat-name"><code>validate-agent-definition.sh</code></td>
+        <td>agent 32 個</td>
+        <td class="score-cell">合格 11 / <strong>不合格 21</strong><div class="bar low"><i style="width:34%"></i></div></td>
+        <td><span class="mark mark-fail">0 件</span></td>
+        <td><span class="mark mark-warn">gap</span></td>
+      </tr>
+      <tr>
+        <td class="cat-name"><code>validate-knowledge.py</code></td>
+        <td>文書 515 個</td>
+        <td class="score-cell">合格 3 / 不合格 512<div class="bar low"><i style="width:1%"></i></div></td>
+        <td><span class="mark mark-fail">0 件</span></td>
+        <td><span class="mark mark-pass">gap でない</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card">
+    <h3><span class="sev sev-pass">除外</span>3 本目だけ性質が違う</h3>
+    <p><code>validate-knowledge.py</code> の 512 件不合格は <strong>gap ではない</strong>。<code>.docs/README.md</code> が「この置き場は知識永続化の器ではない」「未配線は怠慢ではなく必然的帰結」と<strong>理由を先に開示している</strong>、意図的な不適用だからだ。</p>
+    <p>対して上の 2 本は、<em>skill と agent という、その検査プログラム自身が対象とする在庫</em>で落ちている。「器が違う」という弁明が立たない。</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="sev sev-warn">実害</span>新しく作った skill が、正しく書いても赤くなる</h3>
+    <p>不合格 27 件の主因は、許可キー一覧に <code>context</code> と <code>subagent</code> が入っていないこと。この 2 つは fork 系 skill (処理を別コンテキストへ分岐させる種類の skill) が必ず使う。</p>
+    <p>つまり <strong>新しく fork 系を作ると必ず赤が出る</strong>。基準と在庫のどちらが正しいかは実測では決められない (それは設計判断だ)。言えるのは <em>基準を信頼できないまま放置されている</em>ところまで。</p>
+  </div>
+
+  <h2><span class="no">04</span>定期監査 — 促しは自動、掃除は手動</h2>
+
+  <p>時計で自動的に起きる仕組み (cron / launchd / クラウド定期実行) は <strong>1 つも無かった</strong>。crontab、CronList、システムの起動設定 2 か所、すべてで Claude 関連は不在。</p>
+
+  <p>ただしこれは<strong>やり残しではなく設計判断</strong>だった。代わりの仕組みが自分で理由と限界を宣言している。</p>
+
+  <div class="quote">cron の代替: 時計でなくセッション開始イベントで「金曜 かつ 前回通知から下限期間経過」を判定して通知する。SessionStart 駆動ゆえ金曜に起動した時のみ発火する (金曜に起動しない週はスキップ)。</div>
+
+  <p>この代替は<strong>実際に動いている</strong> — 7 月 24 日 (金) と 7 月 31 日 (金) の 2 週連続で発火した痕跡がファイルに残っていた。ただし 7 月 24 日の側はハーネス内部の別文書からの転記で、独立に確かめ直すことはできなかった。</p>
+
+  <p>2 か月前の前回監査が「daemon (常駐プログラム) は稼働ワーカーが空」と記した対象の正体も確定した。<strong>Claude Code アプリ自身の認証更新プロセスであって、ハーネスを監査するワーカーではない</strong> — ログ 1100 行のうち認証が 650 行、バックグラウンド管理が 222 行、バージョン更新が 143 行、監査関連への言及は <em>0 行</em>だった。</p>
+
+  <h2><span class="no">05</span>残差 — 直すべきものが 5 件</h2>
+
+  <div class="card">
+    <h3><span class="sev sev-warn">MEDIUM</span>基準 2 本が実在庫を落としたまま、自動検知へつながっていない</h3>
+    <div class="kv"><b>実測</b>skill 71 個中 27 個・agent 32 個中 21 個が不合格。自動起動の配線は両方とも 0 件</div>
+    <div class="kv"><b>処方</b>どちらを正とするか (基準を実態へ合わせるのか、在庫を基準へ合わせるのか) の判断が先。判断なしに配線すると 48 件が赤で止まる</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="sev sev-warn">MEDIUM</span>無効化した skill への参照を、直す仕組みが無い</h3>
+    <div class="kv"><b>実測</b>無効化した 28 個のうち 9 個が、現役の 15 ファイルから参照されたまま</div>
+    <div class="kv"><b>重要</b><strong>これは新発見ではない</strong>。約 1 か月前の記録 (2026-07-09) が同じ現象を検出し、影響の小さいものとして意識的に受け入れていた。本項はその判断の再評価を提案するもの</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="sev sev-warn">MEDIUM</span>記事が名指しする「ファイル名を検査する Hook」が存在しない</h3>
+    <div class="kv"><b>実測</b>命名規則の検査ロジックは手動スクリプト 2 本の中にあるだけで、どこからも自動起動しない</div>
+    <div class="kv"><b>含意</b>遵守率は 100% だが、守っているのは仕組みではなく<strong>人の規律</strong>。前回監査はこの Hook の存在を合格の根拠に挙げていたが、現時点では成立しない</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="sev sev-warn">MEDIUM</span>agent 名の検査ロジックに、取りこぼしがある</h3>
+    <div class="kv"><b>実測</b>わざと壊した名前 6 種を投入すると、<code>trailing-</code> (末尾ハイフン) と <code>double--hyphen</code> (連続ハイフン) の 2 種が素通りした</div>
+    <div class="kv"><b>含意</b>Layer1 は「自動強制が無い」だけでなく、<em>手動で回せる検査の側にも穴がある</em>。ただし現在の在庫 32 個はすべて適合しており、実害は出ていない</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="sev sev-warn">MEDIUM</span>定期的な掃除は、促しだけが自動で実行は手動</h3>
+    <div class="kv"><b>実測</b>時計駆動 0 件。監査 skill 3 本はいずれも人が明示的に起動する必要がある</div>
+    <div class="kv"><b>弁明</b>cron を採らないのは「時計で起こしても人がいなければ結果を読む者がいない」という設計判断として文書化済み。ゆえに上位の深刻度には上げない</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="sev sev-pass">LOW</span>知識置き場の不在は gap ではない</h3>
+    <div class="kv"><b>記録</b>「先に器を作っても埋まらない」という実証を経て、使い始める時に作る方針 (adopt-on-use) として記録済み。gap でないことの明示記録</div>
+  </div>
+
+  <h2><span class="no">06</span>この監査自体の検証 — 自分の主張が 28 件倒れた</h2>
+
+  <p>判定は、書いた本人とは別の検査役 (ハーネスを読めるが変更はできない権限) に 2 回かけた。<strong>問題が 1 件でも残れば先へ進まない</strong>取り決め (fail-close) で運用した結果、倒れ方に構造が出た。</p>
+
+  <table>
+    <thead>
+      <tr><th>ROUND</th><th>倒れた数</th><th>何が倒れたか</th><th>代表例</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat-name">1 回目</td>
+        <td class="score-cell"><strong>16 件</strong></td>
+        <td>数値と事実</td>
+        <td>「参照実装のリンク切れ 0 件」が偽 (実際は 4 件中 1 件)。「拒否リストから除外」が真逆 (実体は重複した拒否)</td>
+      </tr>
+      <tr>
+        <td class="cat-name">2 回目</td>
+        <td class="score-cell"><strong>12 件</strong></td>
+        <td>理屈・見せ方・一般化</td>
+        <td>「最大の発見」が既知だった。免責の基準が対象によって非対称だった。1 回目で直した理屈がさらに不正確だった</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card">
+    <h3><span class="sev sev-fail">教訓</span>1 回で打ち切っていたら見つからなかったもの</h3>
+    <p>数値の誤りは 1 回目でほぼ出尽くした。だが <strong>「どう解釈するか」の誤りは 2 回目でしか出てこなかった</strong>。最も重い指摘 — この監査が「最大の発見」と呼んだ現象が約 1 か月前に検出・受容済みだったこと、そして 1 つの検査プログラムにだけ既存の開示を探して別の対象には探さなかった<em>基準の非対称</em> — は、どちらも 2 回目の産物だ。</p>
+    <p>逆に、1 回目のあとで運用ルールに格上げしようとした一般化は、2 回目が <strong>事例 1 件からの後付けパターンだ</strong>と反証した。ルールを作りたくなる衝動そのものが、この監査が戒めた「測定から言えないことへ踏み出す」の同じ形だった。</p>
+  </div>
+
+  <p>作業中、<strong>自分の測定器が 4 回壊れた</strong>。検索条件の書き間違いで「該当 0 件」という偽の結果が出かけたのが 2 回、警告文に含まれる語を合格と誤認したのが 1 回、抽出パターンが実フォーマットと噛み合わなかったのが 1 回。いずれも判定に載せる前に潰したが、<em>「0 件」を書く前に測定器が対象を本当に読めたかを確かめる</em>という規律が繰り返し効いた。</p>
+
+  <h2><span class="no">07</span>総評</h2>
+
+  <div class="quote">記事が説く 4 層は、実体としてはすべて揃っていた。欠けているのは層そのものではなく、<strong>層と層をつなぐ自動化</strong> — 基準は 3 本書かれているのに、そのどれも自動検知へ配線されていない。掃除の合図は自動で鳴るが、掃除そのものは人が起動する。<br><br>そして最も重い学びは、監査対象ではなく監査の方法から出た。<strong>「発見した」と書く前に、既に検出されて受け入れられていないかを確かめる</strong>。この確認を怠ると、既存の判断を無視した二重計上が成果に見えてしまう。</div>
+
+  <footer>
+    Generated by explain-in-html skill / Claude Code<br>
+    2026.08.05 02:32 JST
+  </footer>
+
+</div>
+<script>
+/* code/pre ブロックに copy ボタンを付与する最小 JS (clipboard 用、kaiju 指定 2026-06-30)。
+   innerText を button 追加前に捕捉し、コピー文字列に "copy" が混入しないようにする。
+   self-contained を維持 (外部依存なし)。clipboard 以外の interactive JS は引き続き不使用。 */
+document.querySelectorAll("pre").forEach(function(pre){
+  var text = pre.innerText;
+  var b = document.createElement("button");
+  b.className = "copy-btn"; b.type = "button"; b.textContent = "copy";
+  b.addEventListener("click", function(){
+    navigator.clipboard.writeText(text).then(function(){
+      b.textContent = "copied"; b.classList.add("done");
+      setTimeout(function(){ b.textContent = "copy"; b.classList.remove("done"); }, 1200);
+    });
+  });
+  pre.style.position = "relative";
+  pre.appendChild(b);
+});
+</script>
+</body>
+</html>
