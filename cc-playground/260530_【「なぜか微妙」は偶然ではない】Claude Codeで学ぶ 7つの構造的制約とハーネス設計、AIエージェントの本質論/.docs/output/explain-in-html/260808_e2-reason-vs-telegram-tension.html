@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-2 理由ベース × 電報スタイル — 張力の正体と 3 層の解決</title>
+<style>
+  :root{
+    --bg:#141413; --surface:#1d1b18; --surface-2:#262320; --line:#3a362e;
+    --text:#ece8df; --muted:#9b948a; --red:#E63946; --amber:#D9A05B; --green:#7FB069;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1100px 520px at 85% -10%, rgba(230,57,70,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(217,160,91,.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+    font-size:15px; line-height:1.8;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:56px 32px 88px;}
+  .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;letter-spacing:.34em;color:var(--red);margin-bottom:14px;}
+  h1{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;line-height:1.25;font-weight:700;margin-bottom:10px;}
+  h1 em{font-style:normal;color:var(--red);}
+  .meta{color:var(--muted);font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-bottom:36px;}
+  .meta span{margin-right:18px;}
+
+  .hero{display:flex;gap:28px;align-items:stretch;margin-bottom:40px;}
+  .grade-box{
+    min-width:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1px solid var(--line);background:var(--surface);padding:22px 18px;
+  }
+  .grade-letter{font-family:ui-serif,Georgia,serif;font-size:84px;line-height:1;font-weight:700;}
+  .grade-s .grade-letter{color:var(--amber);}
+  .grade-a .grade-letter{color:var(--green);}
+  .grade-b .grade-letter{color:#c9c2b4;}
+  .grade-c .grade-letter{color:var(--amber);}
+  .grade-d .grade-letter,.grade-e .grade-letter{color:var(--red);}
+  .grade-pct{font-family:ui-monospace,Menlo,monospace;font-size:15px;color:var(--muted);margin-top:8px;}
+  .grade-desc{flex:1;border:1px solid var(--line);background:var(--surface);padding:22px 26px;}
+  .grade-desc .label{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.22em;color:var(--muted);margin-bottom:8px;}
+  .grade-desc p{font-size:15px;}
+  .grade-desc strong{color:var(--amber);font-weight:700;}
+
+  h2{
+    font-family:ui-serif,Georgia,serif;font-size:24px;font-weight:700;
+    margin:48px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--line);
+  }
+  h2 .no{color:var(--red);font-family:ui-monospace,Menlo,monospace;font-size:14px;margin-right:12px;letter-spacing:.1em;}
+
+  p{margin:0 0 14px;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--amber);font-weight:700;}
+  em{font-style:normal;color:var(--red);font-weight:700;}
+  a{color:var(--amber);}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;color:var(--amber);background:var(--surface-2);border:1px solid var(--line);padding:1px 6px;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .stat{background:var(--surface);padding:14px 16px;}
+  .stat .k{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);}
+  .stat .v{font-size:14px;font-weight:700;margin-top:4px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{
+    text-align:left;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
+    color:var(--muted);font-weight:400;padding:10px 12px;border-bottom:1px solid var(--line);
+  }
+  td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:hover td{background:var(--surface);}
+  .cat-name{font-weight:700;white-space:nowrap;}
+  .score-cell{font-family:ui-monospace,Menlo,monospace;white-space:nowrap;}
+
+  .mark{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    padding:2px 7px;margin-right:5px;border:1px solid var(--line);
+  }
+  .mark-pass{color:var(--green);border-color:rgba(127,176,105,.45);}
+  .mark-warn{color:var(--amber);border-color:rgba(217,160,91,.5);}
+  .mark-fail{color:var(--red);border-color:rgba(230,57,70,.55);font-weight:700;}
+  .mark-na{color:var(--muted);}
+
+  .bar{height:6px;background:var(--surface-2);margin-top:6px;width:120px;}
+  .bar i{display:block;height:100%;background:var(--amber);}
+  .bar.low i{background:var(--red);}
+  .bar.high i{background:var(--green);}
+
+  .card{border:1px solid var(--line);background:var(--surface);padding:20px 24px;margin-bottom:18px;}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:10px;}
+  .sev{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;
+    padding:2px 9px;margin-right:10px;font-weight:700;
+  }
+  .sev-fail{color:#fff;background:var(--red);}
+  .sev-warn{color:#141413;background:var(--amber);}
+  .sev-pass{color:#141413;background:var(--green);}
+  .kv{margin:6px 0;font-size:14px;}
+  .kv b{color:var(--amber);font-weight:700;margin-right:6px;}
+  pre{
+    background:#0e0d0c;border:1px solid var(--line);padding:14px 40px 14px 16px;margin:12px 0 4px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.6;
+    overflow-x:auto;color:#d8d3c8;
+  }
+  .copy-btn{
+    position:absolute;top:8px;right:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px;letter-spacing:.06em;color:var(--amber);background:var(--surface);
+    border:1px solid var(--line);padding:2px 9px;cursor:pointer;
+  }
+  .copy-btn:hover{border-color:rgba(217,160,91,.55);color:var(--text);}
+  .copy-btn.done{color:var(--green);border-color:rgba(127,176,105,.5);}
+  .chip{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    color:var(--amber);border:1px solid rgba(217,160,91,.5);padding:1px 8px;margin-left:10px;
+  }
+  ul.plain{list-style:none;}
+  ul.plain li{padding:8px 0 8px 22px;position:relative;border-bottom:1px solid var(--line);}
+  ul.plain li::before{content:"";position:absolute;left:0;top:17px;width:10px;height:2px;background:var(--red);}
+
+  .quote{
+    border-left:3px solid var(--red);background:var(--surface);padding:20px 26px;
+    font-family:ui-serif,Georgia,serif;font-size:17px;line-height:1.9;
+  }
+
+  /* diff (before/after, GitHub PR "Files changed" 風 unified view) */
+  .diff{border:1px solid var(--line);background:#0e0d0c;margin:14px 0 18px;}
+  .diff-head{
+    display:flex;justify-content:space-between;gap:12px;padding:8px 14px;
+    border-bottom:1px solid var(--line);background:var(--surface);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);
+  }
+  .diff-head .file{color:var(--text);font-weight:700;}
+  .diff-head .tally .add{color:var(--green);}
+  .diff-head .tally .del{color:var(--red);margin-left:8px;}
+  .diff-body{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;
+  }
+  .diff-row{display:flex;white-space:pre;min-width:max-content;}
+  .diff-row .ln{flex:0 0 auto;width:34px;padding:0 8px;text-align:right;color:var(--muted);user-select:none;}
+  .diff-row .ln.new{border-right:1px solid var(--line);}
+  .diff-row .mk{flex:0 0 auto;width:20px;text-align:center;color:var(--muted);user-select:none;}
+  .diff-row .code{flex:1;padding:0 12px 0 8px;color:#d8d3c8;}
+  .diff-row.del{background:rgba(230,57,70,.12);}
+  .diff-row.del .mk{color:var(--red);font-weight:700;}
+  .diff-row.add{background:rgba(127,176,105,.12);}
+  .diff-row.add .mk{color:var(--green);font-weight:700;}
+  .diff-hunk{
+    padding:2px 14px;color:var(--muted);background:var(--surface-2);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  }
+
+  footer{
+    margin-top:56px;padding-top:18px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:12px;font-family:ui-monospace,Menlo,monospace;line-height:1.9;
+  }
+  @media print{
+    body{background:#fff;color:#1a1a1a;}
+    .wrap{padding:20px;}
+  }
+  @media (max-width:720px){
+    .hero{flex-direction:column;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  
+  <div class="kicker">EXPLAINER · E-2 Q&A · 2026.08.08</div>
+  <h1>理由を書くと膨らむ? — 張力の正体は<em>行数ではなく読まれる確率</em></h1>
+  <div class="meta"><span>2026.08.08</span><span>E-2 理由ベース vs 電報スタイル</span><span>関連 issue #339</span></div>
+
+  
+
+  <h2><span class="no">01</span>問い — 理由を書けと言うが、書いたら膨らむのでは?</h2>
+
+  <p>note の E-2 は「ルール列挙型ではなく<strong>理由ベース型</strong>で書け」と説く。一方、同じハーネスの CLAUDE.md 作成 skill は「<strong>電報スタイル</strong> (指示は最小限、理想 60 行未満)」を定める。理由を全ルールに書き足せば行数は膨らみ、電報スタイルに違反するのではないか — これが Dende の問いだった。</p>
+
+  <p>答えを先に言う: <strong>張力は実在するが、大部分は「理由の置き場」を 3 層に分けることで両立できる</strong>。解けずに残る本物のトレードオフは 1 つだけで、それは行数の問題ではない。</p>
+
+  <h2><span class="no">02</span>前提の訂正 — 電報スタイルは「理由禁止」ではない</h2>
+
+  <p>電報スタイルのテンプレートの実物 (authoring-claude-md の参照資料 L203) はこうなっている:</p>
+
+  <pre>- [ルール1]（理由: [WHY]）
+- [ルール2]（理由: [WHY]）</pre>
+
+  <p><strong>理由込みで様式が定義されている</strong>。つまり電報スタイル違反になるのは「理由の段落化」であって「理由の併記」ではない。1 句の括弧理由は様式の内側だ。</p>
+
+  <p>実例も現物の CLAUDE.md にある — 「勝気なのは口調だけ。中身で見下さない・罵倒しない<strong>（Prohibition を口調が侵さないためのガード）</strong>」。理由込みで 1 行に収まっている。</p>
+
+  <h2><span class="no">03</span>両立の 3 層 — 膨らませずに理由を持つ方法</h2>
+
+  <table>
+    <thead>
+      <tr><th>層</th><th>何をするか</th><th>行数への影響</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat-name">① 削除</td>
+        <td>判断基準「十分に賢ければ Claude が自発的にやることか?」が Yes なら<strong>ルールごと消す</strong>。ルールが無ければ理由も要らない</td>
+        <td><span class="mark mark-pass">減る</span></td>
+      </tr>
+      <tr>
+        <td class="cat-name">② ポインタ委譲</td>
+        <td>本体には 1 行「〜禁止: reference <code>rules/decisive-answers.md</code>」だけ置き、<strong>理由の全文と迂回封じは指し先の rule ファイルに住まわせる</strong></td>
+        <td><span class="mark mark-pass">変わらない</span></td>
+      </tr>
+      <tr>
+        <td class="cat-name">③ 短括弧インライン</td>
+        <td>電報スタイルの <code>（理由: X）</code>。1 句だけ、段落にしない</td>
+        <td><span class="mark mark-warn">微増</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>E-2 監査で「取り入れ済み」と判定した rules/ 側が、②の受け皿として既に機能している。たとえば decisive-answers.md は理由に加えて「迂回パターン (もっともらしい言い訳) の列挙封じ」まで持つが、CLAUDE.md 側の露出は 1 行だけ。<strong>理由の総量は増やしながら、一等地 (CLAUDE.md) の行数は増やさない</strong> — これが構造の答え。</p>
+
+  <p>だから改修 issue #339 の処方は優先順つきになっている: <strong>削除 &gt; 委譲 &gt; 短括弧追記</strong>。</p>
+
+  <h2><span class="no">04</span>解けずに残る本物のトレードオフ — read-miss</h2>
+
+  <p>②で委譲した理由には代償がある。<strong>ポインタの指し先は、辿られた時にしか読まれない</strong> (read-miss = 載せたのに読まれない問題)。Claude がポインタを辿るかは確率的で、読み損ねればその理由は効かない。</p>
+
+  <div class="quote">「必要な時 Read」の判断はモデル依存 (確率的)。読み損ねれば詳細ルールが効かない。対策として各ポインタに想起トリガーを明記し、Read 依存に耐えない核は inline 死守する。</div>
+
+  <p>つまり行ごとにこう問う: このルールの理由は<strong>毎セッションの判断時に必要</strong>か (→ ③でインライン死守)、それとも<strong>深掘り時だけ必要</strong>か (→ ②で委譲)。これは意味論の判断で機械化できない — <strong>#339 の実作業を「行ごとに人が確認」としたのはこのため</strong>。</p>
+
+  <div class="card">
+    <h3><span class="sev sev-warn">要点</span>トレードオフの正体は「行数 vs 理由」ではない</h3>
+    <p>配置問題に変換できる分 (①②③) は解けている。解けない残りは <strong>「一等地の行数」と「理由が読まれる確率」の交換</strong>。インラインに置けば必ず読まれるが行を食う。委譲すれば行は増えないが読まれるかは確率になる。この交換だけが本物のトレードオフ。</p>
+  </div>
+
+  <h2><span class="no">05</span>未検証の仮説 — 痩身の時に理由が落ちた?</h2>
+
+  <p>Dende の推測「電報スタイルを適用したから理由が書かれていないのでは」は歴史的にありそうだ。7/6〜7/8 に CLAUDE.md を 60 行へ絞る作業の記録 (before/after の HTML 2 本) が実在する。<strong>痩身の際に理由ごと削ぎ落とされた可能性は高い — ただし未検証</strong>。</p>
+
+  <p>#339 の作業時に <code>git log -p -- CLAUDE.md</code> で「理由が在った版から消えた瞬間」を探せば確定できる。もし事実なら、<strong>行数の原則 (K-2.1) の最適化が理由の原則 (E-2) を犠牲にした</strong>という、原則同士の衝突事例として記録する価値がある。</p>
+
+  <h2><span class="no">06</span>総評</h2>
+
+  <div class="quote">「理由を書け」と「短く書け」は、同じ場所に書こうとするから衝突する。理由の置き場を 3 層 (削除 / 委譲 / 短括弧) に分ければ大部分は両立し、残るのは「一等地の行数」と「読まれる確率」の交換だけ — それは行ごとに人が決める。E-2 の教えの実装は、結局のところ書く技術ではなく<strong>配置の技術</strong>だった。</div>
+
+  <footer>
+    Generated by explain-in-html skill / Claude Code<br>
+    2026.08.08 06:26 JST
+  </footer>
+
+</div>
+<script>
+/* code/pre ブロックに copy ボタンを付与する最小 JS (clipboard 用、kaiju 指定 2026-06-30)。
+   innerText を button 追加前に捕捉し、コピー文字列に "copy" が混入しないようにする。
+   self-contained を維持 (外部依存なし)。clipboard 以外の interactive JS は引き続き不使用。 */
+document.querySelectorAll("pre").forEach(function(pre){
+  var text = pre.innerText;
+  var b = document.createElement("button");
+  b.className = "copy-btn"; b.type = "button"; b.textContent = "copy";
+  b.addEventListener("click", function(){
+    navigator.clipboard.writeText(text).then(function(){
+      b.textContent = "copied"; b.classList.add("done");
+      setTimeout(function(){ b.textContent = "copy"; b.classList.remove("done"); }, 1200);
+    });
+  });
+  pre.style.position = "relative";
+  pre.appendChild(b);
+});
+</script>
+</body>
+</html>
