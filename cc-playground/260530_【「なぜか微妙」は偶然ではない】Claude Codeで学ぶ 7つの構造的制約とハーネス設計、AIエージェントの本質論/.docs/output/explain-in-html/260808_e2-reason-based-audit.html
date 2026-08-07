@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-2 ルールより理由で汎化する — 取り入れ監査 (分割判定)</title>
+<style>
+  :root{
+    --bg:#141413; --surface:#1d1b18; --surface-2:#262320; --line:#3a362e;
+    --text:#ece8df; --muted:#9b948a; --red:#E63946; --amber:#D9A05B; --green:#7FB069;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1100px 520px at 85% -10%, rgba(230,57,70,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(217,160,91,.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+    font-size:15px; line-height:1.8;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:56px 32px 88px;}
+  .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;letter-spacing:.34em;color:var(--red);margin-bottom:14px;}
+  h1{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;line-height:1.25;font-weight:700;margin-bottom:10px;}
+  h1 em{font-style:normal;color:var(--red);}
+  .meta{color:var(--muted);font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-bottom:36px;}
+  .meta span{margin-right:18px;}
+
+  .hero{display:flex;gap:28px;align-items:stretch;margin-bottom:40px;}
+  .grade-box{
+    min-width:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1px solid var(--line);background:var(--surface);padding:22px 18px;
+  }
+  .grade-letter{font-family:ui-serif,Georgia,serif;font-size:84px;line-height:1;font-weight:700;}
+  .grade-s .grade-letter{color:var(--amber);}
+  .grade-a .grade-letter{color:var(--green);}
+  .grade-b .grade-letter{color:#c9c2b4;}
+  .grade-c .grade-letter{color:var(--amber);}
+  .grade-d .grade-letter,.grade-e .grade-letter{color:var(--red);}
+  .grade-pct{font-family:ui-monospace,Menlo,monospace;font-size:15px;color:var(--muted);margin-top:8px;}
+  .grade-desc{flex:1;border:1px solid var(--line);background:var(--surface);padding:22px 26px;}
+  .grade-desc .label{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.22em;color:var(--muted);margin-bottom:8px;}
+  .grade-desc p{font-size:15px;}
+  .grade-desc strong{color:var(--amber);font-weight:700;}
+
+  h2{
+    font-family:ui-serif,Georgia,serif;font-size:24px;font-weight:700;
+    margin:48px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--line);
+  }
+  h2 .no{color:var(--red);font-family:ui-monospace,Menlo,monospace;font-size:14px;margin-right:12px;letter-spacing:.1em;}
+
+  p{margin:0 0 14px;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--amber);font-weight:700;}
+  em{font-style:normal;color:var(--red);font-weight:700;}
+  a{color:var(--amber);}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;color:var(--amber);background:var(--surface-2);border:1px solid var(--line);padding:1px 6px;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .stat{background:var(--surface);padding:14px 16px;}
+  .stat .k{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);}
+  .stat .v{font-size:14px;font-weight:700;margin-top:4px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{
+    text-align:left;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
+    color:var(--muted);font-weight:400;padding:10px 12px;border-bottom:1px solid var(--line);
+  }
+  td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:hover td{background:var(--surface);}
+  .cat-name{font-weight:700;white-space:nowrap;}
+  .score-cell{font-family:ui-monospace,Menlo,monospace;white-space:nowrap;}
+
+  .mark{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    padding:2px 7px;margin-right:5px;border:1px solid var(--line);
+  }
+  .mark-pass{color:var(--green);border-color:rgba(127,176,105,.45);}
+  .mark-warn{color:var(--amber);border-color:rgba(217,160,91,.5);}
+  .mark-fail{color:var(--red);border-color:rgba(230,57,70,.55);font-weight:700;}
+  .mark-na{color:var(--muted);}
+
+  .bar{height:6px;background:var(--surface-2);margin-top:6px;width:120px;}
+  .bar i{display:block;height:100%;background:var(--amber);}
+  .bar.low i{background:var(--red);}
+  .bar.high i{background:var(--green);}
+
+  .card{border:1px solid var(--line);background:var(--surface);padding:20px 24px;margin-bottom:18px;}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:10px;}
+  .sev{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;
+    padding:2px 9px;margin-right:10px;font-weight:700;
+  }
+  .sev-fail{color:#fff;background:var(--red);}
+  .sev-warn{color:#141413;background:var(--amber);}
+  .sev-pass{color:#141413;background:var(--green);}
+  .kv{margin:6px 0;font-size:14px;}
+  .kv b{color:var(--amber);font-weight:700;margin-right:6px;}
+  pre{
+    background:#0e0d0c;border:1px solid var(--line);padding:14px 40px 14px 16px;margin:12px 0 4px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.6;
+    overflow-x:auto;color:#d8d3c8;
+  }
+  .copy-btn{
+    position:absolute;top:8px;right:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px;letter-spacing:.06em;color:var(--amber);background:var(--surface);
+    border:1px solid var(--line);padding:2px 9px;cursor:pointer;
+  }
+  .copy-btn:hover{border-color:rgba(217,160,91,.55);color:var(--text);}
+  .copy-btn.done{color:var(--green);border-color:rgba(127,176,105,.5);}
+  .chip{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    color:var(--amber);border:1px solid rgba(217,160,91,.5);padding:1px 8px;margin-left:10px;
+  }
+  ul.plain{list-style:none;}
+  ul.plain li{padding:8px 0 8px 22px;position:relative;border-bottom:1px solid var(--line);}
+  ul.plain li::before{content:"";position:absolute;left:0;top:17px;width:10px;height:2px;background:var(--red);}
+
+  .quote{
+    border-left:3px solid var(--red);background:var(--surface);padding:20px 26px;
+    font-family:ui-serif,Georgia,serif;font-size:17px;line-height:1.9;
+  }
+
+  /* diff (before/after, GitHub PR "Files changed" 風 unified view) */
+  .diff{border:1px solid var(--line);background:#0e0d0c;margin:14px 0 18px;}
+  .diff-head{
+    display:flex;justify-content:space-between;gap:12px;padding:8px 14px;
+    border-bottom:1px solid var(--line);background:var(--surface);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);
+  }
+  .diff-head .file{color:var(--text);font-weight:700;}
+  .diff-head .tally .add{color:var(--green);}
+  .diff-head .tally .del{color:var(--red);margin-left:8px;}
+  .diff-body{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;
+  }
+  .diff-row{display:flex;white-space:pre;min-width:max-content;}
+  .diff-row .ln{flex:0 0 auto;width:34px;padding:0 8px;text-align:right;color:var(--muted);user-select:none;}
+  .diff-row .ln.new{border-right:1px solid var(--line);}
+  .diff-row .mk{flex:0 0 auto;width:20px;text-align:center;color:var(--muted);user-select:none;}
+  .diff-row .code{flex:1;padding:0 12px 0 8px;color:#d8d3c8;}
+  .diff-row.del{background:rgba(230,57,70,.12);}
+  .diff-row.del .mk{color:var(--red);font-weight:700;}
+  .diff-row.add{background:rgba(127,176,105,.12);}
+  .diff-row.add .mk{color:var(--green);font-weight:700;}
+  .diff-hunk{
+    padding:2px 14px;color:var(--muted);background:var(--surface-2);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  }
+
+  footer{
+    margin-top:56px;padding-top:18px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:12px;font-family:ui-monospace,Menlo,monospace;line-height:1.9;
+  }
+  @media print{
+    body{background:#fff;color:#1a1a1a;}
+    .wrap{padding:20px;}
+  }
+  @media (max-width:720px){
+    .hero{flex-direction:column;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  
+  <div class="kicker">ADOPTION AUDIT · E-2 · 2026.08.08</div>
+  <h1>原則は奥に根づき、<em>一番手前の看板だけが列挙型</em>で残っていた</h1>
+  <div class="meta"><span>2026.08.08</span><span>note 260405 E-2 (2201-2269行)</span><span>対象 ~/.claude</span><span>第18弾</span></div>
+
+  
+
+  <div class="hero grade-b">
+    <div class="grade-box">
+      <div class="grade-letter">B</div>
+      <div class="grade-pct">分割判定</div>
+    </div>
+    <div class="grade-desc">
+      <div class="label">総合判定 — E-2 ルールより理由で汎化する</div>
+      <p><strong>essence 正本 + rules/ = 取り入れ済み</strong>。記事の判断基準そのものが原則として逐語で住んでおり、失敗から昇格した rule 群は理由が本文の骨格になっている。</p>
+      <p><strong>CLAUDE.md 本体 = 未達</strong>。記事が名指しで対象とするファイルなのに、規則セクションの箇条書きに理由を持つものが<em>ゼロ</em>。記事が批判する「裸のルール列挙」の日本語同型も現存する。</p>
+    </div>
+  </div>
+
+  <h2><span class="no">01</span>数字で見る監査結果</h2>
+
+  <div class="stats">
+    <div class="stat"><div class="k">判断基準の実在</div><div class="v">essence 正本に逐語あり</div></div>
+    <div class="stat"><div class="k">CLAUDE.md の理由保持</div><div class="v">33 本中 3 本のみ</div></div>
+    <div class="stat"><div class="k">裸の命令行</div><div class="v">8 件 (再計数後)</div></div>
+    <div class="stat"><div class="k">独立検証 (初版)</div><div class="v">NO-GO・指摘 11 件</div></div>
+  </div>
+
+  <p>記事 E-2 (2201〜2269 行) の主張: CLAUDE.md には「何をすべきか」のルール列挙より「なぜそうすべきか」の理由を書く。理由があれば未知のケースにも応用でき、ルール同士の衝突も判断でき、増殖を防げる。</p>
+
+  <div class="quote">判断基準:「十分に賢ければClaudeが自発的にやることか?」この問いが Yes なら、そのルールは書く必要がない。</div>
+
+  <h2><span class="no">02</span>取り入れ済みの側 — 原則・rules・増殖防御</h2>
+
+  <table>
+    <thead>
+      <tr><th>記事の要素</th><th>ハーネスの実体 (実測)</th><th>状態</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat-name">判断基準そのもの</td>
+        <td>essence 正本 (agent-essence.md L161-163) に原則 ID「E-2」として英語逐語で存在 — 「Would Claude do this anyway if it were smart enough?」が Yes なら書かない</td>
+        <td><span class="mark mark-pass">逐語で実在</span></td>
+      </tr>
+      <tr>
+        <td class="cat-name">rules/ の理由ベース化</td>
+        <td>失敗から昇格した rule 3 本は理由トークンが骨格 (grounds-not-approval 13 / failure-promotion 8 / decisive-answers 2)。ポインタのみの 3 本は理由が指し先に住む設計</td>
+        <td><span class="mark mark-pass">実在</span></td>
+      </tr>
+      <tr>
+        <td class="cat-name">増殖への防御</td>
+        <td>①ルール自身がコストを自己開示 (「この層は +41% になった」) ②意思決定記録のテンプレは「検討した代替案と却下理由」が必須 ③掃除 (GC) は issue #322 として管理中</td>
+        <td><span class="mark mark-pass">3 機構 + issue</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2><span class="no">03</span>未達の側 — 記事が名指しする CLAUDE.md 本体</h2>
+
+  <p>初版の判定はここを見誤った。「59 行で理想の内側」「ALWAYS/NEVER の英字 0 件」という<strong>代理指標</strong>で合格にしていたが、独立検証が<strong>直接測定</strong>で反証した。</p>
+
+  <div class="card">
+    <h3><span class="sev sev-warn">実測</span>規則セクションの理由保持はゼロ</h3>
+    <div class="kv"><b>分布</b>箇条書き 33 本中、理由を持つのは 3 本のみ — しかもその 3 本は全て Persona / 口調セクション。Response / Prohibition / Interview / Stack の規則 4 セクションに理由を持つ行は無い</div>
+    <div class="kv"><b>同型</b>「絶対禁止: 敬語・忖度・過大評価・お世辞・罵倒・見下し・迎合・イエスマン」(L42) の 8 項目列挙は、記事が批判する Before 型 (NEVER 6 行列挙) の日本語での完全な同型</div>
+    <div class="kv"><b>裸の命令行</b>再計数で 8 件 (CLAUDE.md 6 + multi-agent-safety 2)。行数 (59 行) は理想の内側だが、行数は別原則 (K-2.1) の軸であって「理由があるか」の軸ではない</div>
+  </div>
+
+  <p><strong>事前の推定も反証された</strong> — ハーネス自身の蒸留メモは「CLAUDE.md の各ルールに理由コメントを付与する慣習 (確信度: 中)」と推定していたが、直接測定はその慣習が <strong>rules/ には在り CLAUDE.md には無い</strong>ことを示した。推定と実測が食い違う実例として記録。</p>
+
+  <h2><span class="no">04</span>記事超えは狭い 1 点だけ</h2>
+
+  <p>初版は「理由の悪用面への防御は記事に無い層」と書いたが、これは<strong>過大で撤回</strong>した — 記事は C-5 報酬ハッキング (569〜581 行) で「賢いモデルほど抜け道を見つけるのがうまい」と一般形を正面から扱っている。</p>
+
+  <p>実際に記事に無いのは、もっと狭い実装形だけ: <strong>実際に観測された合理化の文字列 (「結論は正しいのだから根拠の書き方は些細」等) を、回避先の rule 自身へ列挙して塞ぐ</strong>形。2 つの rule が「迂回パターン (LLM の合理化) — これらを禁止する」節 (計 7 項目) を持ち、これは実失敗 2 波から昇格したもの。</p>
+
+  <h2><span class="no">05</span>独立検証 — 初版は NO-GO だった</h2>
+
+  <p>fail-close の独立検証 (1 ラウンド固定) に初版を投入した結果、<strong>NO-GO・指摘 11 件</strong> (High 2 / Medium 4 / Low 4 / Info 1)。重いものから:</p>
+
+  <table>
+    <thead>
+      <tr><th>指摘</th><th>初版</th><th>是正 (検証者の実測値を再測して採用)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat-name">判定の支持不足 (High)</td>
+        <td>CLAUDE.md 分を代理指標で合格に算入</td>
+        <td><strong>判定を分割</strong> — 直接測定に基づき CLAUDE.md = 未達</td>
+      </tr>
+      <tr>
+        <td class="cat-name">記事超えの過大 (High)</td>
+        <td>「悪用面への防御は記事に無い」</td>
+        <td>C-5 が一般形を扱うと認め、狭い 1 点へ縮小</td>
+      </tr>
+      <tr>
+        <td class="cat-name">数え漏れ (Medium)</td>
+        <td>裸命令 5 件・severity Low</td>
+        <td><strong>8 件・Medium</strong> (4 件追加検出・1 件は基準統一で再分類)</td>
+      </tr>
+      <tr>
+        <td class="cat-name">時系列の断定 (Medium)</td>
+        <td>「--autostash は増殖の初期形」</td>
+        <td>git 履歴は同一 commit 同時投入を示す — 断定を撤回</td>
+      </tr>
+      <tr>
+        <td class="cat-name">再現不能な数値 2 件</td>
+        <td>「禁止 10 件」「迂回 97 ファイル」</td>
+        <td>6 行 8 出現 / 128 (全)・91 (md) へ置換</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card">
+    <h3><span class="sev sev-pass">学び</span>撃ち直した数値は無傷、撃ち直さなかった数値だけが倒れた</h3>
+    <p>執筆前に自分で再測した 4 つの数値は検証でも全て一致。倒れた 2 つの数値は、どちらも再測の対象外だった。<strong>見出しに載る数値だけでなく、対照実験や補助の数値も再測対象に含める</strong> — これが次のセクションへの処方。</p>
+  </div>
+
+  <h2><span class="no">06</span>総評</h2>
+
+  <div class="quote">E-2 の原則は、essence 正本と rules/ という「ハーネスの奥」にはしっかり根づいていた — 皮肉なのは、記事が名指しで対象とする CLAUDE.md 本体だけが理由ゼロの列挙型で残っていたこと。奥にある原則が、一番手前の看板に適用されていない。<br><br>残差 [Medium] の処方は行単位の琢磨 (理由を足す / 指し先へ委譲 / 削る)。掃除レーン #322 への合流は「行を減らす」方向と逆なので不適 — 扱いは HITL で決める。
+  </div>
+
+  <footer>
+    Generated by explain-in-html skill / Claude Code<br>
+    2026.08.08 04:31 JST
+  </footer>
+
+</div>
+<script>
+/* code/pre ブロックに copy ボタンを付与する最小 JS (clipboard 用、kaiju 指定 2026-06-30)。
+   innerText を button 追加前に捕捉し、コピー文字列に "copy" が混入しないようにする。
+   self-contained を維持 (外部依存なし)。clipboard 以外の interactive JS は引き続き不使用。 */
+document.querySelectorAll("pre").forEach(function(pre){
+  var text = pre.innerText;
+  var b = document.createElement("button");
+  b.className = "copy-btn"; b.type = "button"; b.textContent = "copy";
+  b.addEventListener("click", function(){
+    navigator.clipboard.writeText(text).then(function(){
+      b.textContent = "copied"; b.classList.add("done");
+      setTimeout(function(){ b.textContent = "copy"; b.classList.remove("done"); }, 1200);
+    });
+  });
+  pre.style.position = "relative";
+  pre.appendChild(b);
+});
+</script>
+</body>
+</html>
