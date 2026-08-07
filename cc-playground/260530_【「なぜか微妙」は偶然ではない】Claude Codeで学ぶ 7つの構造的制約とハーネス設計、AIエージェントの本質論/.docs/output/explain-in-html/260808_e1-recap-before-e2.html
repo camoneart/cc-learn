@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-1 総括 — E-2 直前のおさらい (制約カスケード / 定期監査)</title>
+<style>
+  :root{
+    --bg:#141413; --surface:#1d1b18; --surface-2:#262320; --line:#3a362e;
+    --text:#ece8df; --muted:#9b948a; --red:#E63946; --amber:#D9A05B; --green:#7FB069;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1100px 520px at 85% -10%, rgba(230,57,70,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(217,160,91,.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+    font-size:15px; line-height:1.8;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:56px 32px 88px;}
+  .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;letter-spacing:.34em;color:var(--red);margin-bottom:14px;}
+  h1{font-family:ui-serif,Georgia,"Times New Roman",serif;font-size:40px;line-height:1.25;font-weight:700;margin-bottom:10px;}
+  h1 em{font-style:normal;color:var(--red);}
+  .meta{color:var(--muted);font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-bottom:36px;}
+  .meta span{margin-right:18px;}
+
+  .hero{display:flex;gap:28px;align-items:stretch;margin-bottom:40px;}
+  .grade-box{
+    min-width:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1px solid var(--line);background:var(--surface);padding:22px 18px;
+  }
+  .grade-letter{font-family:ui-serif,Georgia,serif;font-size:84px;line-height:1;font-weight:700;}
+  .grade-s .grade-letter{color:var(--amber);}
+  .grade-a .grade-letter{color:var(--green);}
+  .grade-b .grade-letter{color:#c9c2b4;}
+  .grade-c .grade-letter{color:var(--amber);}
+  .grade-d .grade-letter,.grade-e .grade-letter{color:var(--red);}
+  .grade-pct{font-family:ui-monospace,Menlo,monospace;font-size:15px;color:var(--muted);margin-top:8px;}
+  .grade-desc{flex:1;border:1px solid var(--line);background:var(--surface);padding:22px 26px;}
+  .grade-desc .label{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.22em;color:var(--muted);margin-bottom:8px;}
+  .grade-desc p{font-size:15px;}
+  .grade-desc strong{color:var(--amber);font-weight:700;}
+
+  h2{
+    font-family:ui-serif,Georgia,serif;font-size:24px;font-weight:700;
+    margin:48px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--line);
+  }
+  h2 .no{color:var(--red);font-family:ui-monospace,Menlo,monospace;font-size:14px;margin-right:12px;letter-spacing:.1em;}
+
+  p{margin:0 0 14px;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--amber);font-weight:700;}
+  em{font-style:normal;color:var(--red);font-weight:700;}
+  a{color:var(--amber);}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;color:var(--amber);background:var(--surface-2);border:1px solid var(--line);padding:1px 6px;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .stat{background:var(--surface);padding:14px 16px;}
+  .stat .k{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);}
+  .stat .v{font-size:14px;font-weight:700;margin-top:4px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{
+    text-align:left;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
+    color:var(--muted);font-weight:400;padding:10px 12px;border-bottom:1px solid var(--line);
+  }
+  td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:hover td{background:var(--surface);}
+  .cat-name{font-weight:700;white-space:nowrap;}
+  .score-cell{font-family:ui-monospace,Menlo,monospace;white-space:nowrap;}
+
+  .mark{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    padding:2px 7px;margin-right:5px;border:1px solid var(--line);
+  }
+  .mark-pass{color:var(--green);border-color:rgba(127,176,105,.45);}
+  .mark-warn{color:var(--amber);border-color:rgba(217,160,91,.5);}
+  .mark-fail{color:var(--red);border-color:rgba(230,57,70,.55);font-weight:700;}
+  .mark-na{color:var(--muted);}
+
+  .bar{height:6px;background:var(--surface-2);margin-top:6px;width:120px;}
+  .bar i{display:block;height:100%;background:var(--amber);}
+  .bar.low i{background:var(--red);}
+  .bar.high i{background:var(--green);}
+
+  .card{border:1px solid var(--line);background:var(--surface);padding:20px 24px;margin-bottom:18px;}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:10px;}
+  .sev{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;
+    padding:2px 9px;margin-right:10px;font-weight:700;
+  }
+  .sev-fail{color:#fff;background:var(--red);}
+  .sev-warn{color:#141413;background:var(--amber);}
+  .sev-pass{color:#141413;background:var(--green);}
+  .kv{margin:6px 0;font-size:14px;}
+  .kv b{color:var(--amber);font-weight:700;margin-right:6px;}
+  pre{
+    background:#0e0d0c;border:1px solid var(--line);padding:14px 40px 14px 16px;margin:12px 0 4px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.6;
+    overflow-x:auto;color:#d8d3c8;
+  }
+  .copy-btn{
+    position:absolute;top:8px;right:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px;letter-spacing:.06em;color:var(--amber);background:var(--surface);
+    border:1px solid var(--line);padding:2px 9px;cursor:pointer;
+  }
+  .copy-btn:hover{border-color:rgba(217,160,91,.55);color:var(--text);}
+  .copy-btn.done{color:var(--green);border-color:rgba(127,176,105,.5);}
+  .chip{
+    display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    color:var(--amber);border:1px solid rgba(217,160,91,.5);padding:1px 8px;margin-left:10px;
+  }
+  ul.plain{list-style:none;}
+  ul.plain li{padding:8px 0 8px 22px;position:relative;border-bottom:1px solid var(--line);}
+  ul.plain li::before{content:"";position:absolute;left:0;top:17px;width:10px;height:2px;background:var(--red);}
+
+  .quote{
+    border-left:3px solid var(--red);background:var(--surface);padding:20px 26px;
+    font-family:ui-serif,Georgia,serif;font-size:17px;line-height:1.9;
+  }
+
+  /* diff (before/after, GitHub PR "Files changed" 風 unified view) */
+  .diff{border:1px solid var(--line);background:#0e0d0c;margin:14px 0 18px;}
+  .diff-head{
+    display:flex;justify-content:space-between;gap:12px;padding:8px 14px;
+    border-bottom:1px solid var(--line);background:var(--surface);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);
+  }
+  .diff-head .file{color:var(--text);font-weight:700;}
+  .diff-head .tally .add{color:var(--green);}
+  .diff-head .tally .del{color:var(--red);margin-left:8px;}
+  .diff-body{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;
+  }
+  .diff-row{display:flex;white-space:pre;min-width:max-content;}
+  .diff-row .ln{flex:0 0 auto;width:34px;padding:0 8px;text-align:right;color:var(--muted);user-select:none;}
+  .diff-row .ln.new{border-right:1px solid var(--line);}
+  .diff-row .mk{flex:0 0 auto;width:20px;text-align:center;color:var(--muted);user-select:none;}
+  .diff-row .code{flex:1;padding:0 12px 0 8px;color:#d8d3c8;}
+  .diff-row.del{background:rgba(230,57,70,.12);}
+  .diff-row.del .mk{color:var(--red);font-weight:700;}
+  .diff-row.add{background:rgba(127,176,105,.12);}
+  .diff-row.add .mk{color:var(--green);font-weight:700;}
+  .diff-hunk{
+    padding:2px 14px;color:var(--muted);background:var(--surface-2);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  }
+
+  footer{
+    margin-top:56px;padding-top:18px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:12px;font-family:ui-monospace,Menlo,monospace;line-height:1.9;
+  }
+  @media print{
+    body{background:#fff;color:#1a1a1a;}
+    .wrap{padding:20px;}
+  }
+  @media (max-width:720px){
+    .hero{flex-direction:column;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  
+  <div class="kicker">RECAP · E-1 → E-2 · 2026.08.08</div>
+  <h1>E-1 の総括 — 構築済みと<em>意図した未構築</em>の線引き</h1>
+  <div class="meta"><span>2026.08.08</span><span>note 260405 E-1 / E-1.1</span><span>対象 ~/.claude</span><span>次: E-2 (#254)</span></div>
+
+  
+
+  <h2><span class="no">01</span>現在地 — E-1 は閉じた。次は E-2</h2>
+
+  <div class="stats">
+    <div class="stat"><div class="k">E-1 制約カスケード</div><div class="v">取り入れ済み</div></div>
+    <div class="stat"><div class="k">E-1.1 定期監査</div><div class="v">部分 gap → 起票済み</div></div>
+    <div class="stat"><div class="k">E-1 由来の issue</div><div class="v">#333 / #334 / #338</div></div>
+    <div class="stat"><div class="k">次のセクション</div><div class="v">E-2 ルールより理由</div></div>
+  </div>
+
+  <h2><span class="no">02</span>制約カスケード 4 層 — 何が構築済みか</h2>
+
+  <p>4 層すべてに<strong>実体</strong>がある。ただし「実体がある」と「機械が自動で守らせている」は別の話で、機械強制まで到達しているのは Layer2 と Layer3 の一部だけ。</p>
+
+  <table>
+    <thead>
+      <tr><th>LAYER</th><th>ハーネスでの実体 (実測)</th><th>守らせ方</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat-name">1 命名規則</td>
+        <td>skill 71 / agent 32 / rule 13 が全部 kebab-case (小文字+ハイフン) — 逸脱 0</td>
+        <td><span class="mark mark-warn">規律のみ</span>揃った在庫を Claude が真似ることで維持。機械検査は無い → <strong>#338 で lint 化へ</strong></td>
+      </tr>
+      <tr>
+        <td class="cat-name">2 ディレクトリ構造</td>
+        <td>skills / agents / hooks / rules / .docs の役割分担 + 権限設定の拒否リスト 13 件</td>
+        <td><span class="mark mark-pass">機械封鎖</span>ハーネス実体への編集ツール経路を permissions が塞ぐ。<strong>note の 4 層モデルを超えて機械化されている唯一の層</strong></td>
+      </tr>
+      <tr>
+        <td class="cat-name">3 メタデータ</td>
+        <td>全 71 skill・全 32 agent がファイル冒頭の設定ブロック (frontmatter) を保持</td>
+        <td><span class="mark mark-warn">部分機械</span>警告 hook 1 本 + 意思決定記録の commit 阻止 1 本。基準となる検査プログラムは未配線 → <strong>#333</strong></td>
+      </tr>
+      <tr>
+        <td class="cat-name">4 参照実装</td>
+        <td>32 skill が参照資料を同梱 + 新規作成の雛形 2 種 (skill 用 / agent 用)</td>
+        <td><span class="mark mark-warn">名指しの規律</span>「これを踏襲せよ」型。名指し 4 件中 1 件のリンク切れが見つかった (#84 で既知・受容済みの再評価へ)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2><span class="no">03</span>「note を完全には構築していない」— それは意図的だったか</h2>
+
+  <p>ここが今日のおさらいの核心。答えは <strong>2 種類が混ざっていた</strong> — 「理由を文書に残して意図的に採らなかったもの」と「理由なく欠けていた gap」は別物で、監査はこの線引きで仕分けた。</p>
+
+  <div class="card">
+    <h3><span class="sev sev-pass">意図的</span>理由が文書化され、受容されていた差分 — 改修しない</h3>
+    <div class="kv"><b>時計駆動なし</b>cron (時刻指定の自動実行) を採らず、セッション開始イベント駆動で代替。hook 自身が冒頭コメントで「金曜に起動しない週はスキップ」という限界ごと理由を宣言している</div>
+    <div class="kv"><b>知識 validator 未配線</b>.docs/README.md が「.docs は知識永続化の器ではない。未配線は怠慢ではなく必然的帰結」と開示済み</div>
+    <div class="kv"><b>知識置き場の不在</b>「先に器を作っても埋まらない」の実証を経て、使い始める時に作る方針 (adopt-on-use) として記録済み</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="sev sev-warn">GAP</span>理由なく欠けていた — 起票して改修在庫へ</h3>
+    <div class="kv"><b>#333</b>skill / agent の検査プログラム 2 本が実在庫を落としたまま (71 中 27 / 32 中 21 が不合格)、どこからも自動起動しない。「基準はあるのに検知へ渡っていない」断絶</div>
+    <div class="kv"><b>#334</b>agent 名の検査ロジックに穴 — 末尾ハイフンと連続ハイフンが素通り (壊した名前 6 種の投入実験で発見)</div>
+    <div class="kv"><b>#338</b>note が名指しする「ファイル名の kebab-case 違反を検出する Hook」が不在 (詳細は 05)</div>
+  </div>
+
+  <p>つまり「完全には構築していない」のうち、<strong>文書化された設計判断の部分は意図的で正当</strong>。それ以外は gap として全部起票した。<em>線引きの物差しは「理由の開示があるか」</em>よ。</p>
+
+  <h2><span class="no">04</span>定期監査パターン 3 ステップの成績</h2>
+
+  <table>
+    <thead>
+      <tr><th>ステップ</th><th>判定</th><th>実測の中身</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat-name">(1) 基準を定義する</td>
+        <td><span class="mark mark-pass">ある</span></td>
+        <td>rule 13 本・hook 作成規約・essence 正本・lint 設定・検査プログラム 3 本。基準の在庫は厚い</td>
+      </tr>
+      <tr>
+        <td class="cat-name">(2) Hooks で自動検知</td>
+        <td><span class="mark mark-warn">半分</span></td>
+        <td>検知 hook 自体は多い (書込後 lint 7 本・commit 関門 6 本など)。<strong>だが基準側の検査プログラム 3 本は 1 本も配線されていない</strong> — (1)→(2) の断絶が最大の gap (#333)</td>
+      </tr>
+      <tr>
+        <td class="cat-name">(3) 定期的に除去する</td>
+        <td><span class="mark mark-warn">促しのみ自動</span></td>
+        <td>時計駆動 0 件 (意図的・文書化済み)。金曜リマインダー + 月次発火レポートが「促し」を自動化し、2 週連続の実発火も確認。<strong>除草の実行は人が起動する</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>おまけに note に無い装備が 1 つ — hook の発火台帳 (7 月分 1523 行・17 種別)。「逸脱の増殖速度 vs 除草速度」を実際に数えられる計器で、これは<strong>記事超えポイント</strong>。</p>
+
+  <h2><span class="no">05</span>kebab-case 検出 Hook — 見送り → 撤回 → #338</h2>
+
+  <p>アンタの認識どおり<strong>未実装で、#338 として起票済み</strong>。ただし経緯に往復が 1 回あって、その往復自体に価値があったから記録しておく。</p>
+
+  <table>
+    <thead>
+      <tr><th>時点</th><th>裁定</th><th>根拠</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat-name">8/6 初回</td>
+        <td><span class="mark mark-na">見送り</span></td>
+        <td>遵守率 100% の実測 + ハーネス自身の原則「実測で再発した失敗だけ機械化する」に照らして、作る根拠が無い</td>
+      </tr>
+      <tr>
+        <td class="cat-name">8/8 撤回</td>
+        <td><span class="mark mark-warn">起票 #338</span></td>
+        <td>Dende の指摘で反転。①「失敗が起きてから機械化」は<strong>事後反応の原則</strong>で、E-1.1 の前提「ドリフトは発生を前提とする」の<strong>予防の文脈には届かない</strong> ②現状は検出器ゼロ — 最初の 1 違反は、在庫を真似る仕組みそのものによって<strong>増幅されるまで誰にも見えない</strong>。「規律による 100%」は「最初の違反が起きるまでの 100%」</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>#338 の設計案: 書込み後の警告 (warn) として入れて、実測を積んでから阻止 (block) へ昇格。対象は skill のフォルダ名・agent・rule に限定 (補助スクリプトやテストは命名系統が違うため、全ファイル一律だと誤検知だらけになる)。</p>
+
+  <h2><span class="no">06</span>総評</h2>
+
+  <div class="quote">E-1 の答え合わせはこう締まった — カスケード 4 層は実体として揃っており、note との差分は「理由を文書化した意図的な不採用」と「理由なき gap」に二分できた。前者は触らず、後者は 3 本の issue (#333 / #334 / #338) として改修在庫に載せた。<br><br>特に kebab-case Hook の見送り → 撤回の往復は、「事後反応の昇格ラダー」と「予防の定期監査」という 2 つの原則の適用境界を言語化させた。次の E-2「ルールより理由で汎化する」は、まさにこの「理由の文書化」が主題 — 準備は揃っているわ。</div>
+
+  <footer>
+    Generated by explain-in-html skill / Claude Code<br>
+    2026.08.08 03:18 JST
+  </footer>
+
+</div>
+<script>
+/* code/pre ブロックに copy ボタンを付与する最小 JS (clipboard 用、kaiju 指定 2026-06-30)。
+   innerText を button 追加前に捕捉し、コピー文字列に "copy" が混入しないようにする。
+   self-contained を維持 (外部依存なし)。clipboard 以外の interactive JS は引き続き不使用。 */
+document.querySelectorAll("pre").forEach(function(pre){
+  var text = pre.innerText;
+  var b = document.createElement("button");
+  b.className = "copy-btn"; b.type = "button"; b.textContent = "copy";
+  b.addEventListener("click", function(){
+    navigator.clipboard.writeText(text).then(function(){
+      b.textContent = "copied"; b.classList.add("done");
+      setTimeout(function(){ b.textContent = "copy"; b.classList.remove("done"); }, 1200);
+    });
+  });
+  pre.style.position = "relative";
+  pre.appendChild(b);
+});
+</script>
+</body>
+</html>
