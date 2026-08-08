@@ -51,6 +51,16 @@ related_log: [.docs/logs/shared/2026-05-30_note-harness-gap-analysis.md, .docs/l
 - **[Low] 報告回収・停止の運用規律が未文書化**: `TaskStop` の語はハーネスの rules/skills/progressive-disclosure に **0 件** (grep 実測)。本セッションで確立した運用 (報告はファイル書き出し or 本文・回収と同時に停止・様式は agent 型で分岐) は **handoff にのみ存在 = セッション揮発**。`failure-promotion-trigger` の L0→L1 昇格候補 (自己検知の反復: 放置 2 体 + 不達 3 体)。昇格先の候補 = `multi-agent-safety.md` (subagent 運用の既存の家) or `debating-roles` の知見節への追記。
 - **[Low] チェックリスト③ (単発成功率のサンプリング計測) の不在**: 10 回試行 8 回型の計測機構は現役ハーネスに無い (最近縁 = `skills-disabled/empirical-prompt-tuning`、無効化済み)。**Low とする理由**: ハーネスの品質保証は決定論テスト (60 cases の binary pass/fail) + merge gate の実証 (mutation) で行われており、確率サンプリングの前提となる best-of-N 並列自体を使っていない。best-of-N を導入する時に前提条件として要実装、の位置づけ。
 
+### HITL 処分記録 (2026-08-08 追記)
+
+AskUserQuestion 実結果 = 「可視化集約器を起票」+「停止規律を L1 昇格」(複数選択):
+
+| 残差 | 処分 | 痕跡 |
+|---|---|---|
+| [Medium] 稼働可視化 | **起票 #340** (既存 roster + timeline を読む集約器。新規台帳は作らない) | gh で OPEN 独立確認 |
+| [Low] 回収・停止規律 | **起票 #341** (failure-promotion-trigger の正式発火として multi-agent-safety.md への Gotcha 追記を提案。計数接続の開示つき) | 同上 |
+| [Low] 成功率計測の不在 | **記録のみ** (best-of-N を使う時の前提条件として本ログが保持) | 本節 |
+
 判定: **E-3「非決定論性は最後に活用する」= 取り入れ済み** (原則の逐語存在 + 検査 5 項目中 4 項目の機構 + fan-out の抑制ゲート)。残差は「並列を使う時の可視化・管理」の側に集中しており (Medium 1 + Low 2)、これは記事が Steinberger 引用で予告した弱点の実証でもある。
 
 ## step6 独立検証の記録
