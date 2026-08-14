@@ -14,9 +14,9 @@ head: b8dfadf
 |---|---|
 | マージ | **4 本** — `5ccad3c` (#427) / `4224704` (#433) / `e505218` (#434) / `b8dfadf` (#436) |
 | base → 現在 | `9089726` → **`b8dfadf`** |
-| close した issue | **4 本** (#424 #419 #421 #425。全て `state=CLOSED` `reason=COMPLETED` を実測) |
+| close した issue | **5 本** (#424 #419 #421 #425 + **#416**。全て `state=CLOSED` `reason=COMPLETED` を実測) |
 | 新規起票 | **6 本** (#428 #429 #430 #431 #432 #435。全て OPEN を実測) |
-| open issue | 10 → **12** |
+| open issue | 10 → **11** |
 | open PR | **0** |
 | レビュー判定 | 4 本とも **🟢 GO** (1 段のみ。2 段目なし) |
 | post-merge 全量 | **78 file(s) passed / 0 failed** (elapsed 656s、live で実測) |
@@ -245,6 +245,26 @@ run-all: [注] worktrees は存在数であって同時実行数ではない。�
 
 #428 (#419 の残穴) / #429 #430 #431 (#421 の消費者側・残クラス) / #432 (層D の走査漏れ) / #435 (部分 stage の既存穴)。
 **#429 #430 #431 #432 は「測定器が対象を読めていない」class で、本波の主題の直系。**
+
+## 追記: #416 の close (ログ commit 後に実施)
+
+**ゲートが 1 件取りこぼしていた。** PR #434 は `Closes #416` でなく `Refs #416` を書いていた (着手時点で C の扱いが未確定だったため) ので自動 close が発火せず、#416 が open のまま残っていた。
+
+main (`b8dfadf`) で 6 項目すべてに処置が付いていることを実測して close した:
+
+| 項目 | 状態 | 実測した根拠 |
+|---|---|---|
+| A / B | landed | PR #422 (`9d97758`) |
+| C | 見送り (記録済み) | 1R の `AskUserQuestion` 実結果「1 ファイル維持 + 免責記録」 |
+| **D** | **landed** | `scripts/test-orchestrator-scripts.sh:1892` にラチェット実在 |
+| **E** | **landed** | `references/step-6.md` が **189 → 186 行**へ縮小 |
+| **F** | **landed** | `references/output-format.md:114` に「既定は 1 つ (issue #416 F で一本化)」 |
+
+痕跡: `https://github.com/dendedev/claude-harness/issues/416#issuecomment-5290460248` / `closedAt=2026-08-14T06:58:32Z`。
+
+**確定値の訂正**: 上の結果表の「close した issue」は **4 → 5 本**、「open issue」は **12 → 11** へ是正済み。
+
+**教訓**: **`Refs #N` の issue は自動 close が発火しないので、マージ後に残スコープを測って手で閉じるかを判断する。** 本波はこれを 1 度取りこぼした。
 
 ## 出典
 
